@@ -8,55 +8,6 @@ import {
   Palette, Command, Loader
 } from 'lucide-react';
 
-// --- CUSTOM BRAND ASSETS ---
-
-// Updated Logo: "The Infinite Gateway"
-// Symbolizes: Structural support (Arches) and Future/Depth (Perspective Tunnel).
-const ArcLogo = () => (
-  <svg
-    width="32"
-    height="32"
-    viewBox="0 0 32 32"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    style={{ display: 'block' }}
-  >
-    {/* Arch 1: Foreground (Strong, Bold) - The "Scaffolding" */}
-    <path
-      d="M4 28 C 4 12, 28 12, 28 28"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-    />
-
-    {/* Arch 2: Mid-ground (Lighter) - The "Process" */}
-    <path
-      d="M10 28 C 10 18, 22 18, 22 28"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      opacity="0.6"
-    />
-
-    {/* Arch 3: Background (Faint) - The "Future/Infinity" */}
-    <path
-      d="M14 28 C 14 23, 18 23, 18 28"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      opacity="0.3"
-    />
-
-    {/* The Vanishing Point Floor */}
-    <path
-      d="M16 28 L 16 26"
-      stroke="currentColor"
-      strokeWidth="1"
-      opacity="0.2"
-    />
-  </svg>
-);
-
 // --- HELPERS ---
 
 const getBase64FromUrl = async (url) => {
@@ -403,8 +354,9 @@ export default function App() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
+        {/* UPDATED BRAND SECTION */}
         <div className="brand">
-          <ArcLogo />
+          <img src="/arc.svg" alt="arc" style={{ width: '32px', height: '32px' }} />
           <span style={{ fontSize: '1.5rem', letterSpacing: '-0.04em', fontWeight: 600 }}>arc</span>
         </div>
 

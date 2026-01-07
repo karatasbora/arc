@@ -57,6 +57,10 @@ export default function App() {
       return '';
     }
   });
+
+  // NEW: State for the custom logo
+  const [logoUrl, setLogoUrl] = useState("/arc.svg");
+
   const [transcript, setTranscript] = useState('');
   const [activityType, setActivityType] = useState('comprehension');
   const [cefrLevel, setCefrLevel] = useState('B1');
@@ -90,6 +94,19 @@ export default function App() {
   }, [apiKey]);
 
   // --- ACTIONS ---
+
+  // NEW: Handle Logo Upload
+  const handleLogoUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const addToHistory = (newActivity, visualData) => {
     const newEntry = {
       id: Date.now(),
@@ -363,9 +380,21 @@ export default function App() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        {/* UPDATED BRAND SECTION */}
+        {/* UPDATED BRAND SECTION WITH UPLOAD */}
         <div className="brand">
-          <img src="/arc.svg" alt="arc" style={{ width: '32px', height: '32px' }} />
+          <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} title="Click to upload logo">
+            <img
+              src={logoUrl}
+              alt="arc"
+              style={{ width: '32px', height: '32px', objectFit: 'contain' }}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleLogoUpload}
+              style={{ display: 'none' }}
+            />
+          </label>
           <span style={{ fontSize: '1.5rem', letterSpacing: '-0.04em', fontWeight: 600 }}>arc</span>
         </div>
 

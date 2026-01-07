@@ -14,8 +14,8 @@
   /* Backgrounds */
   --bg-app: #ffffff;
   /* Pure white workspace */
-  --bg-sidebar: #fafafa;
-  /* Zinc-50: Subtle contrast for sidebar */
+  --bg-sidebar: #f4f4f5;
+  /* Zinc-100: Distinct contrast for sidebar */
   --bg-panel: #ffffff;
   --bg-hover: #f4f4f5;
   /* Zinc-100 */
@@ -29,8 +29,8 @@
   /* Zinc-400 */
 
   /* Borders & Separation */
-  --border: #e4e4e7;
-  /* Zinc-200 */
+  --border: #d4d4d8;
+  /* Zinc-300: Higher contrast */
   --border-focus: #09090b;
   /* Focus ring is just black */
 

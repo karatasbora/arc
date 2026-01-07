@@ -1,5 +1,5 @@
 import React from 'react';
-import { Command, ToggleLeft, ToggleRight, Loader, Sparkles, Sliders, Palette, Users } from 'lucide-react';
+import { Command, ToggleLeft, ToggleRight, Loader, Sparkles, Sliders, Palette, Users, Cpu } from 'lucide-react';
 
 export default function ConfigPanel({
     transcript, setTranscript,
@@ -10,6 +10,7 @@ export default function ConfigPanel({
     audience, setAudience,
     visualStyle, setVisualStyle,
     mascotPref, setMascotPref,
+    model, setModel,
     loading, onGenerate
 }) {
     return (
@@ -32,6 +33,14 @@ export default function ConfigPanel({
             {/* Content Depth Section */}
             <div className="section-divider"><Sliders size={14} /> <span>Structure</span></div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                <div className="input-group">
+                    <label>Model</label>
+                    <select value={model} onChange={e => setModel(e.target.value)}>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (Preview)</option>
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Stable)</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Best Quality)</option>
+                    </select>
+                </div>
                 <div className="input-group">
                     <label>Focus</label>
                     <select value={activityType} onChange={e => setActivityType(e.target.value)}>

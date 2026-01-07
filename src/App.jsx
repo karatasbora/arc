@@ -16,10 +16,11 @@ export default function App() {
   const [activityType, setActivityType] = useState('comprehension');
   const [cefrLevel, setCefrLevel] = useState('B1');
   const [isScaffolded, setIsScaffolded] = useState(false);
-  const [length, setLength] = useState('medium'); 
-  const [audience, setAudience] = useState('adults'); 
-  const [visualStyle, setVisualStyle] = useState('minimal vector line art'); 
+  const [length, setLength] = useState('medium');
+  const [audience, setAudience] = useState('adults');
+  const [visualStyle, setVisualStyle] = useState('minimal vector line art');
   const [mascotPref, setMascotPref] = useState('');
+  const [model, setModel] = useState('gemini-2.0-flash');
   const [loading, setLoading] = useState(false);
 
   // Data State
@@ -81,7 +82,7 @@ export default function App() {
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const genModel = genAI.getGenerativeModel({ model: model });
 
       let count = 10;
       if (length === 'short') count = 5;
@@ -120,7 +121,7 @@ export default function App() {
         }
       `;
 
-      const result = await model.generateContent(prompt);
+      const result = await genModel.generateContent(prompt);
       const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
       const data = JSON.parse(text);
 
@@ -162,6 +163,7 @@ export default function App() {
           audience={audience} setAudience={setAudience}
           visualStyle={visualStyle} setVisualStyle={setVisualStyle}
           mascotPref={mascotPref} setMascotPref={setMascotPref}
+          model={model} setModel={setModel}
           loading={loading} onGenerate={handleGenerate}
         />
 

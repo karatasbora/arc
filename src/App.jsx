@@ -16,6 +16,10 @@ export default function App() {
   const [activityType, setActivityType] = useState('comprehension');
   const [cefrLevel, setCefrLevel] = useState('B1');
   const [isScaffolded, setIsScaffolded] = useState(false);
+  const [length, setLength] = useState('medium'); 
+  const [audience, setAudience] = useState('adults'); 
+  const [visualStyle, setVisualStyle] = useState('minimal vector line art'); 
+  const [mascotPref, setMascotPref] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Data State
@@ -79,11 +83,15 @@ export default function App() {
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
+      let count = 10;
+      if (length === 'short') count = 5;
+      if (length === 'long') count = 15;
+
       let typePrompt = "";
       switch (activityType) {
-        case 'vocabulary': typePrompt = "FOCUS: VOCABULARY. Extract 8-10 difficult words. Create matching questions."; break;
+        case 'vocabulary': typePrompt = `FOCUS: VOCABULARY. Extract ${count} difficult words. Create matching questions.`; break;
         case 'grammar': typePrompt = "FOCUS: GRAMMAR. Identify tense/structures. Create fill-in-the-blanks."; break;
-        case 'true_false': typePrompt = "FOCUS: TRUE/FALSE. Create 10 statements."; break;
+        case 'true_false': typePrompt = `FOCUS: TRUE/FALSE. Create ${count} statements.`; break;
         case 'discussion': typePrompt = "FOCUS: SPEAKING. Create discussion prompts."; break;
         default: typePrompt = "FOCUS: COMPREHENSION. Standard open questions.";
       }
@@ -93,10 +101,10 @@ export default function App() {
       const prompt = `
         You are "arc", an advanced Lesson Architect AI.
         TEXT: "${transcript}"
-        CONFIG: ${typePrompt} | Level: ${cefrLevel} | ${scaffoldPrompt}
+        CONFIG: ${typePrompt} | Level: ${cefrLevel} | Audience: ${audience} | ${scaffoldPrompt}
         
         TASK:
-        1. Create content.
+        1. Create content tailored for ${audience}.
         2. DESIGN A VISUAL THEME (primary_color, mascot_prompt).
         
         OUTPUT JSON ONLY:
@@ -120,7 +128,8 @@ export default function App() {
 
       setActivity(data);
 
-      const promptEncoded = encodeURIComponent((data.visual_theme?.mascot_prompt || "abstract concept") + " minimal vector line art, white background, black ink style");
+      const mascotBase = mascotPref || (data.visual_theme?.mascot_prompt || "abstract concept");
+      const promptEncoded = encodeURIComponent(mascotBase + " " + visualStyle + ", white background");
       const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=400&height=400&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
       setMascotUrl(imageUrl);
 
@@ -149,6 +158,10 @@ export default function App() {
           activityType={activityType} setActivityType={setActivityType}
           cefrLevel={cefrLevel} setCefrLevel={setCefrLevel}
           isScaffolded={isScaffolded} setIsScaffolded={setIsScaffolded}
+          length={length} setLength={setLength}
+          audience={audience} setAudience={setAudience}
+          visualStyle={visualStyle} setVisualStyle={setVisualStyle}
+          mascotPref={mascotPref} setMascotPref={setMascotPref}
           loading={loading} onGenerate={handleGenerate}
         />
 

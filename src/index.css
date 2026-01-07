@@ -1,26 +1,61 @@
 :root {
+  /* --- DIMENSIONS --- */
   --sidebar-width: 280px;
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --bg-app: #f3f4f6;
-  --surface: #ffffff;
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
-  --border: #e5e7eb;
+
+  /* --- PALETTE: ZINC (The "AI" Standard) --- */
+  /* Primary Actions (Black/White) */
+  --primary: #09090b;
+  /* Zinc-950: Main buttons, strong text */
+  --primary-hover: #27272a;
+  /* Zinc-800: Hover states */
+  --inverse: #ffffff;
+  /* Text on primary */
+
+  /* Backgrounds */
+  --bg-app: #ffffff;
+  /* Pure white workspace */
+  --bg-sidebar: #fafafa;
+  /* Zinc-50: Subtle contrast for sidebar */
+  --bg-panel: #ffffff;
+  --bg-hover: #f4f4f5;
+  /* Zinc-100 */
+
+  /* Text Colors */
+  --text-main: #09090b;
+  /* Zinc-950 */
+  --text-muted: #71717a;
+  /* Zinc-500 */
+  --text-faint: #a1a1aa;
+  /* Zinc-400 */
+
+  /* Borders & Separation */
+  --border: #e4e4e7;
+  /* Zinc-200 */
+  --border-focus: #09090b;
+  /* Focus ring is just black */
+
+  /* UI Feel */
+  --radius: 8px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+/* --- RESET & BASE --- */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-app);
   color: var(--text-main);
   height: 100vh;
   overflow: hidden;
-  /* App-like feel, no window scroll */
+  /* App-like feel */
 }
 
 /* --- LAYOUT GRID --- */
@@ -30,72 +65,86 @@ body {
   height: 100vh;
 }
 
-/* --- SIDEBAR --- */
+/* --- SIDEBAR (Minimalist) --- */
 .sidebar {
-  background: #1e1b4b;
-  /* Deep Indigo */
-  color: white;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  border-right: 1px solid #312e81;
+  color: var(--text-main);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  color: #a5b4fc;
+  gap: 10px;
+  margin-bottom: 2.5rem;
+  color: var(--text-main);
+  user-select: none;
 }
 
+/* History/Library List */
 .history-list {
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  padding-right: 8px;
+  /* Room for scrollbar */
 }
 
 .history-item {
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
   border: 1px solid transparent;
 }
 
 .history-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--bg-hover);
 }
 
 .history-title {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 500;
   display: block;
-  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 }
 
 .history-meta {
-  font-size: 0.75rem;
-  color: #9ca3af;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 2px;
 }
 
-/* --- MAIN WORKSPACE --- */
+/* Scrollbar refinement for sidebar */
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: #e4e4e7;
+  border-radius: 4px;
+}
+
+/* --- WORKSPACE --- */
 .workspace {
   display: grid;
-  grid-template-columns: 400px 1fr;
+  grid-template-columns: 420px 1fr;
   /* Input Panel | Preview Panel */
   overflow: hidden;
 }
 
-/* PANEL: INPUTS */
+/* --- EDITOR PANEL (Inputs) --- */
 .editor-panel {
-  background: white;
+  background: var(--bg-panel);
   border-right: 1px solid var(--border);
   padding: 2rem;
   overflow-y: auto;
@@ -106,76 +155,79 @@ body {
 
 .input-group label {
   display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-main);
   margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .input-group input,
 .input-group select,
 .input-group textarea {
   width: 100%;
-  padding: 12px;
+  padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border 0.2s;
-  background: #f9fafb;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: white;
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .input-group input:focus,
+.input-group select:focus,
 .input-group textarea:focus {
   outline: none;
-  border-color: var(--primary);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 1px var(--border-focus);
+  /* Minimalist focus ring */
 }
 
 textarea {
-  min-height: 150px;
+  min-height: 120px;
   resize: vertical;
-  font-family: inherit;
+  line-height: 1.5;
 }
 
-/* PANEL: PREVIEW */
-.preview-panel {
-  background: #f1f5f9;
-  padding: 2rem;
-  overflow-y: auto;
+/* Toggle Switch Box */
+.toggle-box {
   display: flex;
-  justify-content: center;
-}
-
-.paper {
-  background: white;
-  width: 100%;
-  max-width: 800px;
-  /* A4-ish width */
-  min-height: 1000px;
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  border-radius: 4px;
-}
-
-/* COMPONENTS */
-.generate-btn {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 8px;
-  font-weight: 600;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.toggle-box:hover {
+  background: var(--bg-hover);
+}
+
+.toggle-box.active {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+
+/* Action Buttons */
+.generate-btn {
   width: 100%;
-  font-size: 1rem;
-  transition: transform 0.1s;
+  padding: 14px;
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s, opacity 0.2s;
+  margin-top: 10px;
 }
 
 .generate-btn:hover {
-  background: var(--primary-hover);
+  opacity: 0.9;
 }
 
 .generate-btn:active {
@@ -183,35 +235,76 @@ textarea {
 }
 
 .generate-btn:disabled {
-  opacity: 0.7;
-  cursor: wait;
+  cursor: not-allowed;
+  opacity: 1;
+  /* Handled by inline styles in JS */
+}
+
+/* --- PREVIEW PANEL (The Output) --- */
+.preview-panel {
+  background: #f4f4f5;
+  /* Zinc-100 backdrop for the paper */
+  padding: 3rem;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* The Lesson Plan "Paper" */
+.paper {
+  background: white;
+  width: 100%;
+  max-width: 850px;
+  /* Standard A4ish width */
+  min-height: 1100px;
+  padding: 50px 60px;
+  box-shadow: var(--shadow-float);
+  border-radius: 2px;
+  /* Paper shouldn't be too rounded */
+  position: relative;
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Internal Paper Typography */
+.paper h1 {
+  font-weight: 700;
+  color: #000;
+}
+
+.questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .download-btn {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
+  transition: all 0.2s;
 }
 
-.toggle-box {
-  background: #f3f4f6;
-  padding: 12px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  border: 1px solid transparent;
+.download-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
-.toggle-box.active {
-  background: #ecfdf5;
-  border-color: #86efac;
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }

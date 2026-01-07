@@ -4,8 +4,34 @@ import { jsPDF } from "jspdf";
 import {
   Layout, Sparkles, Trash2, ToggleLeft, ToggleRight,
   Printer, Image as ImageIcon, Lightbulb, MapPin,
-  Clock, User, HelpCircle, Utensils, Download, AlertTriangle, Palette
+  Clock, User, HelpCircle, Utensils, Download, AlertTriangle,
+  Palette, Command, Loader
 } from 'lucide-react';
+
+// --- CUSTOM BRAND ASSETS ---
+
+const ArcLogo = () => (
+  <svg
+    width="28"
+    height="28"
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ display: 'block' }}
+  >
+    <defs>
+      <linearGradient id="arc-gradient" x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse">
+        <stop stopColor="currentColor" />
+        <stop offset="1" stopColor="currentColor" stopOpacity="0.4" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M4 28 C 12 28, 18 22, 28 4 L 24 4 C 16 20, 10 24, 4 24 Z"
+      fill="url(#arc-gradient)"
+    />
+    <circle cx="26" cy="6" r="1.5" fill="currentColor" opacity="0.4" />
+  </svg>
+);
 
 // --- HELPERS ---
 
@@ -24,15 +50,24 @@ const getBase64FromUrl = async (url) => {
   }
 };
 
-// Keyword Detector for Visual Cues (Safe Version)
+// "SmartTags" - Minimalist/Monochrome Version
 const getCategoryBadge = (text) => {
-  if (!text) return { label: "DETAIL", icon: <HelpCircle size={12} />, color: "bg-slate-100 text-slate-700" };
+  if (!text) return { label: "detail", icon: <HelpCircle size={10} />, class: "badge-detail" };
   const lower = text.toLowerCase();
-  if (lower.includes('where') || lower.includes('place') || lower.includes('go')) return { label: "LOCATION", icon: <MapPin size={12} />, color: "bg-blue-100 text-blue-700" };
-  if (lower.includes('who')) return { label: "CHARACTER", icon: <User size={12} />, color: "bg-purple-100 text-purple-700" };
-  if (lower.includes('what') && (lower.includes('eat') || lower.includes('food'))) return { label: "FOOD", icon: <Utensils size={12} />, color: "bg-orange-100 text-orange-700" };
-  if (lower.includes('when') || lower.includes('time')) return { label: "TIME", icon: <Clock size={12} />, color: "bg-amber-100 text-amber-700" };
-  return { label: "DETAIL", icon: <HelpCircle size={12} />, color: "bg-slate-100 text-slate-700" };
+
+  if (lower.includes('where') || lower.includes('place'))
+    return { label: "location", icon: <MapPin size={10} />, class: "badge-zinc" };
+
+  if (lower.includes('who'))
+    return { label: "character", icon: <User size={10} />, class: "badge-zinc" };
+
+  if (lower.includes('what') && (lower.includes('eat') || lower.includes('food')))
+    return { label: "food", icon: <Utensils size={10} />, class: "badge-zinc" };
+
+  if (lower.includes('when') || lower.includes('time'))
+    return { label: "time", icon: <Clock size={10} />, class: "badge-zinc" };
+
+  return { label: "detail", icon: <HelpCircle size={10} />, class: "badge-detail" };
 };
 
 export default function App() {
@@ -50,7 +85,8 @@ export default function App() {
 
   // Visual Assets
   const [mascotUrl, setMascotUrl] = useState(null);
-  const [themeColors, setThemeColors] = useState({ primary: '#4f46e5', accent: '#10b981' });
+  // Default to monochrome/zinc theme
+  const [themeColors, setThemeColors] = useState({ primary: '#09090b', accent: '#71717a' });
 
   // Load History Safely
   useEffect(() => {
@@ -84,7 +120,6 @@ export default function App() {
   };
 
   const loadFromHistory = (item) => {
-    // Safety check before loading
     if (!item || !item.student_worksheet) {
       alert("This saved lesson is corrupt or from an old version.");
       return;
@@ -92,7 +127,7 @@ export default function App() {
     setActivity(item);
     if (item.visuals) {
       setMascotUrl(item.visuals.mascotUrl);
-      setThemeColors(item.visuals.themeColors || { primary: '#4f46e5' });
+      setThemeColors(item.visuals.themeColors || { primary: '#09090b' });
     }
     if (item.meta) {
       setCefrLevel(item.meta.level || 'B1');
@@ -101,7 +136,7 @@ export default function App() {
   };
 
   const clearHistory = () => {
-    if (confirm("Clear all saved lessons? This fixes 'White Screen' errors caused by old data.")) {
+    if (confirm("Clear all saved lessons?")) {
       setHistory([]);
       setActivity(null);
       localStorage.setItem('lesson_history', '[]');
@@ -117,7 +152,7 @@ export default function App() {
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // Updated to latest model
 
       let typePrompt = "";
       switch (activityType) {
@@ -133,15 +168,15 @@ export default function App() {
         : "SCAFFOLDING: OFF. Standard.";
 
       const prompt = `
-        You are a Visual Lesson Architect.
+        You are "arc", an advanced Lesson Architect AI.
         TEXT: "${transcript}"
         CONFIG: ${typePrompt} | Level: ${cefrLevel} | ${scaffoldPrompt}
         
         TASK:
         1. Create the lesson content.
         2. DESIGN A VISUAL THEME based on the story. 
-           - Pick a "primary_color" hex code (e.g. #009246 for Italy).
-           - Write a "mascot_prompt": A description for an AI image generator to create a cute header illustration.
+           - Pick a "primary_color" hex code (darker/professional tones preferred).
+           - Write a "mascot_prompt": A description for an AI image generator to create a minimal vector illustration.
         
         OUTPUT JSON ONLY:
         {
@@ -169,14 +204,15 @@ export default function App() {
       if (!data.student_worksheet) throw new Error("Invalid AI response structure");
 
       setActivity(data);
-      setThemeColors({ primary: data.visual_theme?.primary_color || '#4f46e5', accent: '#4b5563' });
+      // Enforce the monochrome aesthetic for the UI, but keep the data color for the PDF accent
+      setThemeColors({ primary: '#09090b', accent: data.visual_theme?.primary_color || '#4f46e5' });
 
-      // Image Gen
-      const promptEncoded = encodeURIComponent((data.visual_theme?.mascot_prompt || "school mascot") + " white background, high quality, vector style, flat illustration");
+      // Image Gen (Minimalist/Vector style)
+      const promptEncoded = encodeURIComponent((data.visual_theme?.mascot_prompt || "abstract concept") + " minimal vector line art, white background, black ink style");
       const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=400&height=400&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
 
       setMascotUrl(imageUrl);
-      addToHistory(data, { mascotUrl: imageUrl, themeColors: { primary: data.visual_theme?.primary_color } });
+      addToHistory(data, { mascotUrl: imageUrl, themeColors: { primary: '#09090b' } });
 
     } catch (err) {
       alert("Error: " + err.message);
@@ -185,13 +221,13 @@ export default function App() {
     }
   };
 
-  // --- PDF ENGINE (VISUAL SCAFFOLDED) ---
+  // --- PDF ENGINE (BRANDED) ---
   const downloadPDF = async () => {
     if (!activity) return;
     const doc = new jsPDF();
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
-    const margin = 15;
+    const margin = 20; // More breathing room
 
     // Layout
     const sidebarW = (width - (margin * 2)) * 0.30;
@@ -203,40 +239,34 @@ export default function App() {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
     };
-    const primaryRGB = hexToRgb(themeColors.primary);
-    const slate800 = [30, 41, 59];
-    const slate500 = [100, 116, 139];
-    const slate100 = [241, 245, 249];
+
+    // PDF uses the generated accent color for subtle highlights, but Black for main text
+    const accentRGB = hexToRgb(themeColors.accent);
+    const blackRGB = [9, 9, 11]; // Zinc-950
+    const grayRGB = [113, 113, 122]; // Zinc-500
 
     let cursorY = 0;
     let pageNumber = 1;
 
     const drawFooter = (pNum) => {
       doc.setFontSize(8);
-      doc.setTextColor(...slate500);
+      doc.setTextColor(...grayRGB);
       doc.setFont("helvetica", "normal");
-      doc.text(`Page ${pNum}  •  ${activity.title}`, width - margin, height - 10, { align: 'right' });
-      doc.setDrawColor(...primaryRGB);
-      doc.setLineWidth(0.5);
-      doc.line(margin, height - 15, width - margin, height - 15);
+      doc.text(`Page ${pNum}  •  arc / ${activity.title}`, margin, height - 10);
     };
 
     const drawSidebar = () => {
-      doc.setFillColor(250, 250, 250);
-      doc.rect(sidebarX - gutter / 2, 0, sidebarW + margin + gutter / 2, height, 'F');
-
-      let sideY = 60;
+      // Minimalist Sidebar (No background fill, just clean layout)
+      let sideY = 55;
 
       if (activity.student_worksheet.glossary && activity.student_worksheet.glossary.length > 0) {
-        doc.setFillColor(...primaryRGB);
-        doc.rect(sidebarX, sideY, sidebarW, 8, 'F');
-        doc.setTextColor(255);
+        doc.setTextColor(...blackRGB);
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
-        doc.text("KEY VOCABULARY", sidebarX + 5, sideY + 5.5);
+        doc.text("VOCABULARY", sidebarX, sideY);
 
-        sideY += 15;
-        doc.setTextColor(...slate800);
+        sideY += 10;
+        doc.setTextColor(50, 50, 50);
         activity.student_worksheet.glossary.forEach((item) => {
           doc.setFont("helvetica", "bold");
           doc.setFontSize(9);
@@ -248,19 +278,6 @@ export default function App() {
           sideY += (defLines.length * 4) + 8;
         });
       }
-
-      sideY += 10;
-      doc.setDrawColor(...primaryRGB);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(sidebarX, sideY, sidebarW, 40, 2, 2);
-      doc.setTextColor(...primaryRGB);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.text("QUICK TIPS", sidebarX + 5, sideY + 8);
-      doc.setTextColor(...slate500);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.text(doc.splitTextToSize("Look for keywords. Read the story twice.", sidebarW - 10), sidebarX + 5, sideY + 15);
     };
 
     const checkSpace = (required) => {
@@ -273,194 +290,153 @@ export default function App() {
       }
     };
 
-    // Helper for badges in PDF (Simplified text version)
-    const getPdfBadge = (text) => {
-      if (!text) return "DETAIL";
-      const lower = text.toLowerCase();
-      if (lower.includes('where') || lower.includes('place')) return "LOCATION";
-      if (lower.includes('who')) return "CHARACTER";
-      if (lower.includes('food') || lower.includes('eat')) return "FOOD";
-      if (lower.includes('when')) return "TIME";
-      return "DETAIL";
-    };
-
     drawSidebar();
-    doc.setFillColor(...primaryRGB);
-    doc.rect(0, 0, width, 40, 'F');
-    doc.setTextColor(255);
+
+    // Header
+    doc.setTextColor(...blackRGB);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.text(activity.title, margin, 18);
+    doc.setFontSize(24);
+    doc.text(activity.title, margin, 20);
+
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text(`${activity.meta?.level || 'A1'} LEVEL  •  ${(activity.meta?.type || 'LESSON').toUpperCase()}`, margin, 28);
+    doc.setTextColor(...grayRGB);
+    doc.text(`${(activity.meta?.level || 'A1').toUpperCase()}  •  ${(activity.meta?.type || 'LESSON').toUpperCase()}  •  20 MIN`, margin, 30);
+
+    // Subtle divider
+    doc.setDrawColor(230, 230, 230);
+    doc.line(margin, 38, width - margin, 38);
 
     if (mascotUrl) {
       try {
         const base64Img = await getBase64FromUrl(mascotUrl);
         if (base64Img) {
-          doc.setDrawColor(255);
-          doc.setLineWidth(2);
-          doc.circle(width - 30, 20, 16, 'S');
-          doc.addImage(base64Img, 'JPEG', width - 42, 8, 24, 24);
+          doc.addImage(base64Img, 'JPEG', width - margin - 25, 10, 25, 25);
         }
       } catch (e) { console.error(e); }
     }
 
     cursorY = 55;
-    doc.setTextColor(...slate500);
+    doc.setTextColor(...grayRGB);
     doc.setFontSize(9);
-    doc.text("Name: ______________________", margin, cursorY);
-    doc.text("Date: ______________________", margin + mainW / 2, cursorY);
-    cursorY += 15;
+    doc.text("Name ___________________________", margin, cursorY);
+    cursorY += 20;
 
-    doc.setFillColor(...slate100);
-    doc.roundedRect(margin, cursorY, mainW, 25, 2, 2, 'F');
-    doc.setTextColor(...primaryRGB);
+    // Instructions
+    doc.setTextColor(...blackRGB);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.text("INSTRUCTIONS", margin + 5, cursorY + 8);
-    doc.setTextColor(...slate800);
+    doc.setFontSize(10);
+    doc.text("INSTRUCTIONS", margin, cursorY);
+    cursorY += 6;
     doc.setFont("helvetica", "normal");
-    const instrLines = doc.splitTextToSize(activity.student_worksheet.instructions, mainW - 10);
-    doc.text(instrLines, margin + 5, cursorY + 16);
-    cursorY += 35;
+    const instrLines = doc.splitTextToSize(activity.student_worksheet.instructions, mainW);
+    doc.text(instrLines, margin, cursorY);
+    cursorY += (instrLines.length * 5) + 15;
 
+    // Questions
     activity.student_worksheet.questions.forEach((q, i) => {
       doc.setFontSize(11);
-      const qLines = doc.splitTextToSize(q.question_text, mainW - 20);
-      let boxH = (qLines.length * 6) + 15;
-      if (q.options) boxH += (q.options.length * 8) + 5;
-      else if (activityType === 'true_false') boxH += 10;
+      const qLines = doc.splitTextToSize(`${i + 1}. ${q.question_text}`, mainW);
+      let boxH = (qLines.length * 6) + 10;
+      if (q.options) boxH += (q.options.length * 7) + 5;
       else boxH += 15;
-      if (q.hint && isScaffolded) boxH += 12;
 
-      checkSpace(boxH + 5);
+      checkSpace(boxH);
 
-      const cat = getPdfBadge(q.question_text);
-      doc.setFillColor(...primaryRGB);
-      doc.roundedRect(margin, cursorY, doc.getTextWidth(cat) + 6, 6, 1, 1, 'F');
-      doc.setTextColor(255);
-      doc.setFontSize(7);
-      doc.setFont("helvetica", "bold");
-      doc.text(cat, margin + 3, cursorY + 4);
+      doc.setTextColor(...blackRGB);
+      doc.setFont("helvetica", "bold"); // Bold questions for contrast
+      doc.text(qLines, margin, cursorY);
 
-      doc.setTextColor(...slate800);
-      doc.setFontSize(11);
-      doc.text(qLines, margin, cursorY + 12);
-
-      let localY = cursorY + 12 + (qLines.length * 5);
+      let localY = cursorY + (qLines.length * 5) + 4;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
 
       if (q.options) {
         q.options.forEach(opt => {
-          doc.setDrawColor(...slate500);
-          doc.rect(margin, localY - 3, 4, 4);
-          doc.setTextColor(...slate500);
+          doc.setDrawColor(200);
+          doc.circle(margin + 2, localY - 1, 1.5);
+          doc.setTextColor(60);
           doc.text(opt, margin + 8, localY);
           localY += 7;
         });
-      } else if (activityType === 'true_false') {
-        doc.rect(margin, localY - 3, 4, 4);
-        doc.text("True", margin + 8, localY);
-        doc.rect(margin + 30, localY - 3, 4, 4);
-        doc.text("False", margin + 38, localY);
-        localY += 8;
       } else {
-        doc.setDrawColor(200);
-        doc.line(margin, localY + 5, margin + mainW, localY + 5);
-        localY += 10;
+        doc.setDrawColor(230);
+        doc.line(margin, localY + 8, margin + mainW, localY + 8);
+        localY += 12;
       }
 
       if (q.hint && isScaffolded) {
-        doc.setFillColor(254, 243, 199);
-        doc.roundedRect(margin, localY, mainW, 8, 1, 1, 'F');
-        doc.setTextColor(180, 83, 9);
+        doc.setTextColor(100);
         doc.setFontSize(8);
-        doc.setFont("helvetica", "bold");
-        doc.text(`HINT: ${q.hint}`, margin + 5, localY + 5.5);
-        localY += 10;
+        doc.setFont("helvetica", "italic");
+        doc.text(`Hint: ${q.hint}`, margin, localY);
+        localY += 8;
       }
-      cursorY = localY + 8;
+      cursorY = localY + 10;
     });
 
     drawFooter(pageNumber);
-
-    // TEACHER PAGE
-    doc.addPage();
-    pageNumber++;
-    doc.setFillColor(...slate800);
-    doc.rect(0, 0, width, 40, 'F');
-    doc.setTextColor(255);
-    doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.text("TEACHER'S COMPANION", margin, 25);
-
-    cursorY = 55;
-    doc.setTextColor(0);
-    doc.setFontSize(12);
-    doc.text("Pedagogical Focus", margin, cursorY);
-    cursorY += 10;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const ratLines = doc.splitTextToSize(activity.teacher_guide.rationale, width - (margin * 2));
-    doc.text(ratLines, margin, cursorY);
-    cursorY += (ratLines.length * 5) + 20;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Answer Key", margin, cursorY);
-    cursorY += 10;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    if (activity.teacher_guide.key_answers) {
-      activity.teacher_guide.key_answers.forEach((ans, i) => {
-        doc.text(`${i + 1}. ${ans}`, margin, cursorY);
-        cursorY += 7;
-      });
-    }
-
-    drawFooter(pageNumber);
-    doc.save(`${activity.title.replace(/\s+/g, '_')}_Visual.pdf`);
+    doc.save(`arc_lesson_${activity.title.replace(/\s+/g, '_').toLowerCase()}.pdf`);
   };
 
   // --- UI RENDER ---
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand"><Layout /> LessonArchitect</div>
-        <div className="input-group" style={{ marginBottom: '20px' }}>
-          <label style={{ color: '#a5b4fc' }}>API Key</label>
-          <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
-            style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid #4338ca' }} />
+        <div className="brand">
+          <ArcLogo />
+          <span style={{ fontSize: '1.5rem', letterSpacing: '-0.04em', fontWeight: 600 }}>arc</span>
         </div>
+
+        <div className="input-group" style={{ marginBottom: '20px' }}>
+          <label>API Key</label>
+          <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
+            style={{ fontFamily: 'monospace' }} />
+        </div>
+
         <div className="history-list">
-          <div style={{ color: '#a5b4fc', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '10px' }}>HISTORY</div>
+          <div style={{
+            fontSize: '0.7rem', fontWeight: '600', marginBottom: '10px',
+            textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.6
+          }}>
+            Library
+          </div>
           {history.map(item => (
             <div key={item.id} className="history-item" onClick={() => loadFromHistory(item)}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                {/* SAFE GUARD: Check visuals existence */}
-                {item.visuals?.mascotUrl && <img src={item.visuals.mascotUrl} style={{ width: '30px', height: '30px', borderRadius: '4px', objectFit: 'cover' }} />}
+                <div style={{
+                  width: '6px', height: '6px', borderRadius: '50%',
+                  background: item.visuals?.themeColors?.primary || '#000'
+                }}></div>
                 <div>
                   <span className="history-title">{item.title}</span>
-                  {/* SAFE GUARD: Optional Chaining */}
-                  <div className="history-meta">{item.meta?.level}</div>
+                  <div className="history-meta">{(item.meta?.level || 'B1').toUpperCase()}</div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <button onClick={clearHistory} style={{ marginTop: 'auto', background: 'none', border: 'none', color: '#fb7185', cursor: 'pointer', display: 'flex', gap: '5px', alignItems: 'center' }}><Trash2 size={14} /> Clear / Reset App</button>
+
+        <button onClick={clearHistory} style={{
+          marginTop: 'auto', background: 'none', border: 'none',
+          color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem',
+          display: 'flex', gap: '8px', alignItems: 'center', opacity: 0.8
+        }}>
+          <Trash2 size={14} /> Clear History
+        </button>
       </aside>
 
       <main className="workspace">
         <div className="editor-panel">
-          <h2><Sparkles size={20} style={{ display: 'inline', color: themeColors.primary }} /> Creator Studio</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', color: '#71717a' }}>
+            <Command size={18} />
+            <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>New Configuration</span>
+          </div>
 
           <div className="input-group">
-            <label>Story / Topic</label>
+            <label>Source Material / Topic</label>
             <textarea
-              placeholder="e.g. Peppa Pig goes to Italy and eats pizza..."
+              placeholder="Enter text or a topic (e.g., 'The history of the internet' or 'Quantum Physics for kids')..."
               value={transcript}
               onChange={e => setTranscript(e.target.value)}
             />
@@ -468,7 +444,7 @@ export default function App() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div className="input-group">
-              <label>Type</label>
+              <label>Focus</label>
               <select value={activityType} onChange={e => setActivityType(e.target.value)}>
                 <option value="comprehension">Comprehension</option>
                 <option value="vocabulary">Vocabulary</option>
@@ -477,183 +453,174 @@ export default function App() {
               </select>
             </div>
             <div className="input-group">
-              <label>Level</label>
+              <label>CEFR Level</label>
               <select value={cefrLevel} onChange={e => setCefrLevel(e.target.value)}>
                 <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option>
               </select>
             </div>
           </div>
 
-          <div className={`toggle-box ${isScaffolded ? 'active' : ''}`} onClick={() => setIsScaffolded(!isScaffolded)}>
-            {isScaffolded ? <ToggleRight color={themeColors.primary} /> : <ToggleLeft color="#ccc" />}
-            <span>Scaffolding Mode</span>
+          <div
+            className={`toggle-box ${isScaffolded ? 'active' : ''}`}
+            onClick={() => setIsScaffolded(!isScaffolded)}
+          >
+            {isScaffolded ? <ToggleRight color="black" /> : <ToggleLeft color="#d4d4d8" />}
+            <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>Scaffolding Mode</span>
           </div>
 
-          <button className="generate-btn" onClick={generateActivity} disabled={loading} style={{ background: themeColors.primary }}>
-            {loading ? "Designing & Illustrating..." : "Generate Magic Lesson"}
+          <button
+            className="generate-btn"
+            onClick={generateActivity}
+            disabled={loading}
+            style={{
+              background: loading ? '#f4f4f5' : 'black',
+              color: loading ? '#a1a1aa' : 'white',
+              boxShadow: loading ? 'none' : '0 4px 12px rgba(0,0,0,0.15)'
+            }}
+          >
+            {loading ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                <Loader size={16} className="animate-spin" /> Architects Logic...
+              </span>
+            ) : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                <Sparkles size={16} /> Generate Lesson
+              </span>
+            )}
           </button>
         </div>
 
-        <div className="preview-panel" style={{ background: '#f8fafc', overflowY: 'auto' }}>
+        <div className="preview-panel">
           {activity ? (
-            <div className="paper-container" style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <div className="paper" style={{
-                width: '100%', maxWidth: '1000px', background: 'white', minHeight: '1200px',
-                boxShadow: '0 20px 50px -10px rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden',
-                display: 'grid', gridTemplateColumns: '7fr 3fr'
-              }}>
-
-                {/* --- LEFT: MAIN CONTENT --- */}
-                <div className="main-content" style={{ padding: '40px', borderRight: '1px solid #f1f5f9' }}>
-
-                  {/* HERO HEADER */}
-                  <div style={{ background: themeColors.primary, margin: '-40px -40px 30px -40px', padding: '40px', color: 'white' }}>
-                    <h1 style={{ margin: 0, fontSize: '2rem' }}>{activity.title}</h1>
-                    <div style={{ marginTop: '10px', opacity: 0.9, fontSize: '0.9rem', display: 'flex', gap: '15px' }}>
-                      <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px' }}>{activity.meta?.level}</span>
-                      <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px' }}>{activity.meta?.type?.toUpperCase()}</span>
-                      <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px' }}>20 MIN</span>
+            <div className="paper">
+              {/* HEADER */}
+              <div style={{ marginBottom: '40px', borderBottom: '1px solid #e4e4e7', paddingBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <div>
+                    <h1 style={{ margin: 0, fontSize: '2rem', letterSpacing: '-0.03em' }}>{activity.title}</h1>
+                    <div style={{ marginTop: '10px', display: 'flex', gap: '10px', color: '#71717a', fontSize: '0.8rem', fontWeight: 600 }}>
+                      <span style={{ border: '1px solid #e4e4e7', padding: '2px 8px', borderRadius: '4px' }}>{activity.meta?.level}</span>
+                      <span style={{ border: '1px solid #e4e4e7', padding: '2px 8px', borderRadius: '4px' }}>{activity.meta?.type?.toUpperCase()}</span>
                     </div>
                   </div>
-
-                  {/* INSTRUCTIONS */}
-                  <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', borderLeft: `4px solid ${themeColors.primary}`, marginBottom: '30px' }}>
-                    <div style={{ color: themeColors.primary, fontWeight: 'bold', fontSize: '0.8rem', marginBottom: '5px' }}>INSTRUCTIONS</div>
-                    <div style={{ color: '#334155' }}>{activity.student_worksheet?.instructions}</div>
-                  </div>
-
-                  {/* QUESTIONS */}
-                  <div className="questions-list">
-                    {activity.student_worksheet?.questions?.map((q, i) => {
-                      const badge = getCategoryBadge(q.question_text);
-                      return (
-                        <div key={i} style={{ marginBottom: '25px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                            <span className={`badge ${badge.color}`} style={{
-                              fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px',
-                              display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase'
-                            }}>
-                              {badge.icon} {badge.label}
-                            </span>
-                          </div>
-
-                          <div style={{ fontSize: '1.05rem', fontWeight: '600', color: '#1e293b', marginBottom: '10px' }}>
-                            <span style={{ color: themeColors.primary, marginRight: '8px' }}>{i + 1}.</span>
-                            {q.question_text}
-                          </div>
-
-                          <div style={{ paddingLeft: '20px' }}>
-                            {q.options ? (
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                {q.options.map(opt => (
-                                  <div key={opt} style={{
-                                    padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '6px',
-                                    fontSize: '0.9rem', color: '#475569', display: 'flex', gap: '8px', alignItems: 'center'
-                                  }}>
-                                    <div style={{ width: '12px', height: '12px', border: '1px solid #cbd5e1', borderRadius: '2px' }}></div>
-                                    {opt}
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div style={{ borderBottom: '1px dashed #cbd5e1', height: '30px', width: '100%' }}></div>
-                            )}
-                          </div>
-
-                          {q.hint && isScaffolded && (
-                            <div style={{
-                              marginTop: '10px', background: '#fffbeb', padding: '8px 12px', borderRadius: '6px',
-                              border: '1px solid #fcd34d', display: 'flex', gap: '8px', alignItems: 'center'
-                            }}>
-                              <Lightbulb size={14} color="#b45309" />
-                              <span style={{ fontSize: '0.85rem', color: '#b45309', fontStyle: 'italic' }}>Hint: {q.hint}</span>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* --- RIGHT: SIDEBAR (ACTION & ASSETS) --- */}
-                <div className="paper-sidebar" style={{ background: '#f8fafc', padding: '30px' }}>
-
-                  {/* --- DOWNLOAD ACTION --- */}
-                  <div style={{ marginBottom: '30px' }}>
-                    <button onClick={downloadPDF} className="download-btn" style={{
-                      width: '100%', padding: '15px', background: '#0f172a', color: 'white',
-                      border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
-                    }}>
-                      <Download size={20} /> Download PDF
-                    </button>
-                    <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#64748b', marginTop: '8px' }}>
-                      Includes visuals & teacher guide
-                    </div>
-                  </div>
-
-                  {/* MASCOT */}
                   {mascotUrl && (
-                    <div style={{
-                      background: 'white', padding: '10px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-                      marginBottom: '30px', textAlign: 'center'
-                    }}>
-                      <img src={mascotUrl} style={{ width: '100%', borderRadius: '8px' }} />
-                      <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '8px', fontWeight: 'bold' }}>LESSON MASCOT</div>
-                    </div>
+                    <img src={mascotUrl} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', filter: 'grayscale(100%)' }} />
                   )}
-
-                  {/* GLOSSARY */}
-                  {activity.student_worksheet?.glossary && (
-                    <div style={{ marginBottom: '30px' }}>
-                      <h4 style={{
-                        fontSize: '0.8rem', textTransform: 'uppercase', color: themeColors.primary,
-                        borderBottom: `2px solid ${themeColors.primary}`, paddingBottom: '8px', marginBottom: '15px'
-                      }}>Key Vocabulary</h4>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {activity.student_worksheet.glossary.map((g, i) => (
-                          <div key={i}>
-                            <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#334155' }}>{g.word}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: '1.4' }}>{g.definition}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* TEACHER TIPS */}
-                  <div style={{ background: '#eff6ff', padding: '15px', borderRadius: '8px', border: '1px solid #dbeafe' }}>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px', color: '#1e40af' }}>
-                      <HelpCircle size={16} />
-                      <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Teacher Tip</span>
-                    </div>
-                    <p style={{ fontSize: '0.8rem', color: '#1e3a8a', margin: 0 }}>
-                      Encourage students to use the category badges to scan for answers quickly.
-                    </p>
-                  </div>
-
                 </div>
-
               </div>
+
+              {/* INSTRUCTIONS */}
+              <div style={{ marginBottom: '30px' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#a1a1aa', marginBottom: '8px', textTransform: 'uppercase' }}>Instructions</div>
+                <div style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{activity.student_worksheet?.instructions}</div>
+              </div>
+
+              {/* QUESTIONS */}
+              <div className="questions-list">
+                {activity.student_worksheet?.questions?.map((q, i) => {
+                  const badge = getCategoryBadge(q.question_text);
+                  return (
+                    <div key={i} style={{ marginBottom: '30px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <span className={badge.class}>
+                          {badge.icon} {badge.label}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '12px' }}>
+                        <span style={{ color: '#d4d4d8', marginRight: '12px' }}>{i + 1}</span>
+                        {q.question_text}
+                      </div>
+
+                      <div style={{ paddingLeft: '24px' }}>
+                        {q.options ? (
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
+                            {q.options.map(opt => (
+                              <div key={opt} style={{
+                                padding: '8px 12px', border: '1px solid #f4f4f5', borderRadius: '6px',
+                                fontSize: '0.9rem', color: '#52525b', display: 'flex', gap: '12px', alignItems: 'center'
+                              }}>
+                                <div style={{ width: '14px', height: '14px', border: '1px solid #d4d4d8', borderRadius: '50%' }}></div>
+                                {opt}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div style={{ borderBottom: '1px solid #f4f4f5', height: '30px', width: '100%' }}></div>
+                        )}
+                      </div>
+
+                      {q.hint && isScaffolded && (
+                        <div style={{
+                          marginTop: '12px', marginLeft: '24px',
+                          color: '#d97706', fontSize: '0.8rem', display: 'flex', gap: '6px', alignItems: 'center'
+                        }}>
+                          <AlertTriangle size={12} />
+                          <span>Hint: {q.hint}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button onClick={downloadPDF} className="download-btn" style={{
+                marginTop: '40px', width: '100%', padding: '16px',
+                background: '#09090b', color: 'white', border: 'none', borderRadius: '8px',
+                fontWeight: 600, cursor: 'pointer', display: 'flex', justifyContent: 'center', gap: '10px'
+              }}>
+                <Download size={18} /> Export as PDF
+              </button>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', opacity: 0.3, marginTop: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Palette size={64} />
-              <h3>Visual Engine Ready</h3>
-              <p>Enter a topic to generate a beautiful lesson</p>
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              height: '100%', opacity: 0.6, color: '#a1a1aa'
+            }}>
+              <div style={{
+                background: 'white', padding: '30px', borderRadius: '50%',
+                boxShadow: '0 20px 40px -10px rgba(0,0,0,0.05)', marginBottom: '20px'
+              }}>
+                <Palette size={48} strokeWidth={1} color="#000" />
+              </div>
+              <h3 style={{ fontSize: '1.2rem', color: '#18181b', marginBottom: '8px', fontWeight: 600 }}>Start Your Blueprint</h3>
+              <p style={{ maxWidth: '300px', textAlign: 'center', fontSize: '0.9rem' }}>
+                Configure the lesson parameters and click Generate to construct a new lesson plan.
+              </p>
             </div>
           )}
         </div>
       </main>
 
       <style>{`
-        .bg-blue-100 { background-color: #dbeafe; } .text-blue-700 { color: #1d4ed8; }
-        .bg-purple-100 { background-color: #f3e8ff; } .text-purple-700 { color: #7e22ce; }
-        .bg-orange-100 { background-color: #ffedd5; } .text-orange-700 { color: #c2410c; }
-        .bg-amber-100 { background-color: #fef3c7; } .text-amber-700 { color: #b45309; }
-        .bg-slate-100 { background-color: #f1f5f9; } .text-slate-700 { color: #334155; }
+        /* Badge Styles for Monochrome Theme */
+        .badge-zinc {
+          background-color: #f4f4f5;
+          color: #18181b;
+          border: 1px solid #e4e4e7;
+          font-size: 0.65rem;
+          font-weight: 600;
+          padding: 2px 8px;
+          border-radius: 99px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .badge-detail {
+          background-color: white;
+          color: #a1a1aa;
+          border: 1px solid #f4f4f5;
+          font-size: 0.65rem;
+          font-weight: 600;
+          padding: 2px 8px;
+          border-radius: 99px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          text-transform: uppercase;
+        }
       `}</style>
     </div>
   );

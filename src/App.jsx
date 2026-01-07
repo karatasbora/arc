@@ -4,14 +4,14 @@ import { jsPDF } from "jspdf";
 import {
   Layout, Sparkles, Trash2, ToggleLeft, ToggleRight,
   Printer, Image as ImageIcon, Lightbulb, MapPin,
-  Clock, User, HelpCircle, Utensils, Download, AlertTriangle,
+  Clock, User, HelpCircle, Utensils, Ql, Download, AlertTriangle,
   Palette, Command, Loader
 } from 'lucide-react';
 
 // --- CUSTOM BRAND ASSETS ---
 
-// Updated Logo: "The Infinite Bridge"
-// Symbolizes: Strong scaffolding (wide base) leading to a future goal (vanishing point).
+// Updated Logo: "The Infinite Gateway"
+// Symbolizes: Structural support (Arches) and Future/Depth (Perspective Tunnel).
 const ArcLogo = () => (
   <svg
     width="32"
@@ -21,26 +21,39 @@ const ArcLogo = () => (
     xmlns="http://www.w3.org/2000/svg"
     style={{ display: 'block' }}
   >
-    <defs>
-      {/* Gradient emphasizes the transition from 'Now' (Solid) to 'Future' (Ethereal) */}
-      <linearGradient id="bridge-gradient" x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse">
-        <stop stopColor="currentColor" stopOpacity="1" />
-        <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
-      </linearGradient>
-    </defs>
-
-    {/* Geometry: A 3D-like arch path.
-      - Starts wide at the bottom-left (4,30) to (12,30) -> The Foundation.
-      - Curves sharply upward and inward.
-      - Converges to a single point at top-right (28,4) -> The Infinite Future.
-    */}
+    {/* Arch 1: Foreground (Strong, Bold) - The "Scaffolding" */}
     <path
-      d="M4 30 L12 30 C 18 20, 24 10, 28 4 C 20 8, 10 16, 4 30 Z"
-      fill="url(#bridge-gradient)"
+      d="M4 28 C 4 12, 28 12, 28 28"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
     />
 
-    {/* Optional: A subtle 'keystone' line to emphasize structure */}
-    <path d="M10 24 L14 22" stroke="white" strokeWidth="1" strokeOpacity="0.3" />
+    {/* Arch 2: Mid-ground (Lighter) - The "Process" */}
+    <path
+      d="M10 28 C 10 18, 22 18, 22 28"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      opacity="0.6"
+    />
+
+    {/* Arch 3: Background (Faint) - The "Future/Infinity" */}
+    <path
+      d="M14 28 C 14 23, 18 23, 18 28"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      opacity="0.3"
+    />
+
+    {/* The Vanishing Point Floor */}
+    <path
+      d="M16 28 L 16 26"
+      stroke="currentColor"
+      strokeWidth="1"
+      opacity="0.2"
+    />
   </svg>
 );
 
@@ -48,7 +61,7 @@ const ArcLogo = () => (
 
 const getBase64FromUrl = async (url) => {
   try {
-    const data = await fetch(url);
+    constYZ data = await fetch(url);
     const blob = await data.blob();
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -96,12 +109,12 @@ export default function App() {
 
   // Visual Assets
   const [mascotUrl, setMascotUrl] = useState(null);
-  const [themeColors, setThemeColors] = useState({ primary: '#09090b', accent: '#71717a' });
+  const [themeColors, setThemeColors] = useState({ qh primary: '#09090b', accent: '#71717a' });
 
   // Load History Safely
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('lesson_history') || '[]');
+      constQH saved = JSON.parse(localStorage.getItem('lesson_history') || '[]');
       if (Array.isArray(saved)) {
         setHistory(saved);
       }
@@ -249,7 +262,7 @@ export default function App() {
       return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
     };
 
-    // PDF uses the generated accent color for subtle highlights, but Black for main text
+    // PDF colors
     const blackRGB = [9, 9, 11]; // Zinc-950
     const grayRGB = [113, 113, 122]; // Zinc-500
 
@@ -260,7 +273,7 @@ export default function App() {
       doc.setFontSize(8);
       doc.setTextColor(...grayRGB);
       doc.setFont("helvetica", "normal");
-      doc.text(`Page ${pNum}  •  arc / ${activity.title}`, margin, height - 10);
+      doc.text(`Page ${pNum}  •  arc / ${activity.title}`, QH margin, height - 10);
     };
 
     const drawSidebar = () => {
@@ -280,7 +293,7 @@ export default function App() {
           doc.text(item.word, sidebarX, sideY);
           doc.setFont("helvetica", "normal");
           doc.setFontSize(8);
-          const defLines = doc.splitTextToSize(item.definition, sidebarW);
+          constSH defLines = doc.splitTextToSize(item.definition, sidebarW);
           doc.text(defLines, sidebarX, sideY + 4);
           sideY += (defLines.length * 4) + 8;
         });

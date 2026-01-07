@@ -1,149 +1,197 @@
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1e40af;
-  --bg: #f3f4f6;
-  --card-bg: #ffffff;
+  --sidebar-width: 280px;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --bg-app: #f3f4f6;
+  --surface: #ffffff;
   --text-main: #1f2937;
-  --text-light: #6b7280;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--bg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-app);
   color: var(--text-main);
+  height: 100vh;
+  overflow: hidden;
+  /* App-like feel, no window scroll */
 }
 
-.app-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
+/* --- LAYOUT GRID --- */
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  height: 100vh;
 }
 
-/* Header */
-.header {
+/* --- SIDEBAR --- */
+.sidebar {
+  background: #1e1b4b;
+  /* Deep Indigo */
+  color: white;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  flex-direction: column;
+  padding: 1.5rem;
+  border-right: 1px solid #312e81;
 }
 
-.logo {
+.brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: var(--primary);
+  gap: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #a5b4fc;
 }
 
-.logo h1 {
-  font-size: 1.5rem;
-  margin: 0;
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.status-badge {
-  background: #dbeafe;
-  color: #1e40af;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: bold;
+.history-item {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
 }
 
-/* Cards */
-.card {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  margin-bottom: 25px;
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Inputs */
-.input-group {
-  margin-bottom: 20px;
+.history-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.history-meta {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* --- MAIN WORKSPACE --- */
+.workspace {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  /* Input Panel | Preview Panel */
+  overflow: hidden;
+}
+
+/* PANEL: INPUTS */
+.editor-panel {
+  background: white;
+  border-right: 1px solid var(--border);
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .input-group label {
   display: block;
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .input-group input,
+.input-group select,
 .input-group textarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 1rem;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
+  font-size: 0.95rem;
+  transition: border 0.2s;
+  background: #f9fafb;
 }
 
 .input-group input:focus,
 .input-group textarea:focus {
   outline: none;
   border-color: var(--primary);
-  ring: 2px solid #bfdbfe;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
-.input-group textarea {
-  height: 150px;
+textarea {
+  min-height: 150px;
   resize: vertical;
+  font-family: inherit;
 }
 
-/* Buttons */
-.generate-btn {
-  width: 100%;
-  padding: 14px;
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
+/* PANEL: PREVIEW */
+.preview-panel {
+  background: #f1f5f9;
+  padding: 2rem;
+  overflow-y: auto;
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 10px;
-  transition: background 0.2s;
 }
 
-.generate-btn:hover:not(:disabled) {
-  background-color: var(--primary-dark);
+.paper {
+  background: white;
+  width: 100%;
+  max-width: 800px;
+  /* A4-ish width */
+  min-height: 1000px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  border-radius: 4px;
+}
+
+/* COMPONENTS */
+.generate-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+  transition: transform 0.1s;
+}
+
+.generate-btn:hover {
+  background: var(--primary-hover);
+}
+
+.generate-btn:active {
+  transform: scale(0.98);
 }
 
 .generate-btn:disabled {
-  background-color: #9ca3af;
-  cursor: not-allowed;
-}
-
-/* Results */
-.result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 15px;
-  margin-bottom: 20px;
-}
-
-.meta-tags span {
-  background: #f3f4f6;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  margin-right: 10px;
-  color: var(--text-light);
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .download-btn {
-  background: #059669;
+  background: #10b981;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -152,39 +200,18 @@ body {
   font-weight: 600;
 }
 
-.teacher-section {
-  background: #fffbeb;
-  border-left: 4px solid #f59e0b;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 25px;
-}
-
-.teacher-section h3 {
-  margin-top: 0;
+.toggle-box {
+  background: #f3f4f6;
+  padding: 12px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #92400e;
+  gap: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
 }
 
-.question-list {
-  padding-left: 20px;
-  line-height: 1.6;
-}
-
-.question-list li {
-  margin-bottom: 10px;
-}
-
-.glossary-box {
-  background: #f8fafc;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 20px;
-}
-
-.glossary-item {
-  margin-bottom: 6px;
-  font-size: 0.95rem;
+.toggle-box.active {
+  background: #ecfdf5;
+  border-color: #86efac;
 }

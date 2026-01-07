@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { jsPDF } from "jspdf";
 import {
-  Layout, Download, Sparkles, Trash2,
-  Settings, BookOpen, ToggleLeft, ToggleRight,
-  FileText, Palette, Printer, Image as ImageIcon,
-  Lightbulb, MapPin, Clock, User, HelpCircle, Utensils
+  Layout, Sparkles, Trash2, ToggleLeft, ToggleRight,
+  Printer, Image as ImageIcon, Lightbulb, MapPin,
+  Clock, User, HelpCircle, Utensils, Download
 } from 'lucide-react';
 
 // --- HELPERS ---
@@ -20,7 +19,7 @@ const getBase64FromUrl = async (url) => {
   });
 };
 
-// Keyword Detector for Visual Cues (Shared with PDF Engine)
+// Keyword Detector for Visual Cues
 const getCategoryBadge = (text) => {
   const lower = text.toLowerCase();
   if (lower.includes('where') || lower.includes('place') || lower.includes('go')) return { label: "LOCATION", icon: <MapPin size={12} />, color: "bg-blue-100 text-blue-700" };
@@ -38,13 +37,12 @@ export default function App() {
   const [cefrLevel, setCefrLevel] = useState('B1');
   const [isScaffolded, setIsScaffolded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState('student'); // 'student' or 'teacher'
 
   // The Data
   const [activity, setActivity] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // Visual Assets State
+  // Visual Assets
   const [mascotUrl, setMascotUrl] = useState(null);
   const [themeColors, setThemeColors] = useState({ primary: '#4f46e5', accent: '#10b981' });
 
@@ -166,7 +164,7 @@ export default function App() {
     }
   };
 
-  // --- PDF ENGINE (FINAL POLISH) ---
+  // --- PDF ENGINE (VISUAL SCAFFOLDED) ---
   const downloadPDF = async () => {
     if (!activity) return;
     const doc = new jsPDF();
@@ -476,7 +474,7 @@ export default function App() {
               <div className="paper" style={{
                 width: '100%', maxWidth: '1000px', background: 'white', minHeight: '1200px',
                 boxShadow: '0 20px 50px -10px rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden',
-                display: 'grid', gridTemplateColumns: '7fr 3fr' // SPLIT LAYOUT
+                display: 'grid', gridTemplateColumns: '7fr 3fr'
               }}>
 
                 {/* --- LEFT: MAIN CONTENT --- */}
@@ -498,7 +496,7 @@ export default function App() {
                     <div style={{ color: '#334155' }}>{activity.student_worksheet.instructions}</div>
                   </div>
 
-                  {/* QUESTIONS WITH BADGES */}
+                  {/* QUESTIONS */}
                   <div className="questions-list">
                     {activity.student_worksheet.questions.map((q, i) => {
                       const badge = getCategoryBadge(q.question_text);
@@ -549,16 +547,27 @@ export default function App() {
                       );
                     })}
                   </div>
-
-                  <button onClick={downloadPDF} className="download-btn" style={{ marginTop: '40px', width: 'auto', background: '#1e293b' }}>
-                    <Printer size={18} /> Download Visual PDF
-                  </button>
                 </div>
 
-                {/* --- RIGHT: SIDEBAR (ASSETS & GLOSSARY) --- */}
+                {/* --- RIGHT: SIDEBAR (ACTION & ASSETS) --- */}
                 <div className="paper-sidebar" style={{ background: '#f8fafc', padding: '30px' }}>
 
-                  {/* MASCOT CARD */}
+                  {/* --- DOWNLOAD ACTION CARD (MOVED HERE) --- */}
+                  <div style={{ marginBottom: '30px' }}>
+                    <button onClick={downloadPDF} className="download-btn" style={{
+                      width: '100%', padding: '15px', background: '#0f172a', color: 'white',
+                      border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                    }}>
+                      <Download size={20} /> Download PDF
+                    </button>
+                    <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#64748b', marginTop: '8px' }}>
+                      Includes visuals & teacher guide
+                    </div>
+                  </div>
+
+                  {/* MASCOT */}
                   {mascotUrl && (
                     <div style={{
                       background: 'white', padding: '10px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
@@ -588,14 +597,14 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* TEACHER TIPS (Preview Only) */}
+                  {/* TEACHER TIPS */}
                   <div style={{ background: '#eff6ff', padding: '15px', borderRadius: '8px', border: '1px solid #dbeafe' }}>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px', color: '#1e40af' }}>
                       <HelpCircle size={16} />
                       <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Teacher Tip</span>
                     </div>
                     <p style={{ fontSize: '0.8rem', color: '#1e3a8a', margin: 0 }}>
-                      Ask students to find the <strong>Location Badge</strong> questions first to set the scene before reading details.
+                      Encourage students to use the category badges to scan for answers quickly.
                     </p>
                   </div>
 
@@ -613,7 +622,6 @@ export default function App() {
         </div>
       </main>
 
-      {/* Tailwind Utility Classes Injection for badges */}
       <style>{`
         .bg-blue-100 { background-color: #dbeafe; } .text-blue-700 { color: #1d4ed8; }
         .bg-purple-100 { background-color: #f3e8ff; } .text-purple-700 { color: #7e22ce; }

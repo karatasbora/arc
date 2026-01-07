@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@600;700&family=Outfit:wght@500;600;700&display=swap');
 
 :root {
   /* --- PALETTE: MODERN AI (Zinc & Indigo) --- */
@@ -48,8 +48,9 @@
   --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
   /* Font Families */
-  --font-ui: 'Inter', sans-serif;
+  --font-ui: 'IBM Plex Sans', sans-serif;
   --font-heading: 'Outfit', sans-serif;
+  --font-brand: 'Inter', sans-serif;
 }
 
 /* --- RESET & BASE --- */
@@ -100,10 +101,13 @@ h6 {
   gap: 12px;
   margin-bottom: 2rem;
   color: var(--text-main);
-  font-family: var(--font-heading);
+  font-family: var(--font-brand);
+  /* Reverted to Inter */
   font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: -0.02em;
+  font-size: 1.5rem;
+  /* Reverted size */
+  letter-spacing: -0.04em;
+  /* Reverted tracking */
 }
 
 .history-list {

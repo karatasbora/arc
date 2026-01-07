@@ -1,44 +1,55 @@
-:root {
-  /* --- DIMENSIONS --- */
-  --sidebar-width: 280px;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
 
-  /* --- PALETTE: ZINC (The "AI" Standard) --- */
-  /* Primary Actions (Black/White) */
-  --primary: #09090b;
-  /* Zinc-950: Main buttons, strong text */
+:root {
+  /* --- PALETTE: MODERN AI (Zinc & Indigo) --- */
+  --primary: #18181b;
+  /* Zinc-950 */
   --primary-hover: #27272a;
-  /* Zinc-800: Hover states */
+  /* Zinc-800 */
   --inverse: #ffffff;
-  /* Text on primary */
+
+  --accent: #6366f1;
+  /* Indigo-500: Active states/Highlights */
+  --accent-soft: #e0e7ff;
+  /* Indigo-100: Backgrounds */
 
   /* Backgrounds */
   --bg-app: #ffffff;
-  /* Pure white workspace */
-  --bg-sidebar: #f4f4f5;
-  /* Zinc-100: Distinct contrast for sidebar */
+  --bg-sidebar: #fafafa;
+  /* Zinc-50 */
   --bg-panel: #ffffff;
-  --bg-hover: #f4f4f5;
+  --bg-surface: #f4f4f5;
   /* Zinc-100 */
+  --bg-hover: #f4f4f5;
 
-  /* Text Colors */
-  --text-main: #09090b;
-  /* Zinc-950 */
+  /* Text */
+  --text-main: #18181b;
+  /* Zinc-900 */
   --text-muted: #71717a;
   /* Zinc-500 */
   --text-faint: #a1a1aa;
   /* Zinc-400 */
 
-  /* Borders & Separation */
-  --border: #d4d4d8;
-  /* Zinc-300: Higher contrast */
-  --border-focus: #09090b;
-  /* Focus ring is just black */
+  /* Borders */
+  --border: #e4e4e7;
+  /* Zinc-200 */
+  --border-hover: #d4d4d8;
+  /* Zinc-300 */
+  --focus-ring: rgba(99, 102, 241, 0.2);
 
-  /* UI Feel */
-  --radius: 8px;
+  /* UI Tokens */
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 16px;
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Font Families */
+  --font-ui: 'Inter', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
 }
 
 /* --- RESET & BASE --- */
@@ -48,101 +59,100 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-app);
   color: var(--text-main);
   height: 100vh;
   overflow: hidden;
-  /* App-like feel */
 }
 
-/* --- LAYOUT GRID --- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  margin: 0;
+}
+
+/* --- LAYOUT --- */
 .app-shell {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-columns: 260px 1fr;
   height: 100vh;
 }
 
-/* --- SIDEBAR (Minimalist) --- */
+/* --- SIDEBAR --- */
 .sidebar {
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: var(--text-main);
+  font-size: 0.9rem;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 2.5rem;
+  gap: 12px;
+  margin-bottom: 2rem;
   color: var(--text-main);
-  user-select: none;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
 }
 
-/* History/Library List */
 .history-list {
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-right: 8px;
-  /* Room for scrollbar */
+  gap: 6px;
+  padding-right: 4px;
 }
 
 .history-item {
   padding: 10px 12px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   border: 1px solid transparent;
 }
 
 .history-item:hover {
-  background: var(--bg-hover);
+  background: white;
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .history-title {
-  font-size: 0.85rem;
   font-weight: 500;
-  display: block;
+  font-size: 0.85rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 180px;
 }
 
 .history-meta {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-/* Scrollbar refinement for sidebar */
-.history-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.history-list::-webkit-scrollbar-thumb {
-  background: #e4e4e7;
-  border-radius: 4px;
+  margin-top: 4px;
 }
 
 /* --- WORKSPACE --- */
 .workspace {
   display: grid;
-  grid-template-columns: 420px 1fr;
-  /* Input Panel | Preview Panel */
+  grid-template-columns: 450px 1fr;
+  /* Wider input panel */
   overflow: hidden;
+  background: var(--bg-app);
 }
 
-/* --- EDITOR PANEL (Inputs) --- */
+/* --- EDITOR PANEL (Config) --- */
 .editor-panel {
   background: var(--bg-panel);
   border-right: 1px solid var(--border);
@@ -150,147 +160,199 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
-.input-group label {
-  display: block;
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.panel-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* Form Sections */
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* Inputs */
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-main);
-  margin-bottom: 0.5rem;
 }
 
-.input-group input,
-.input-group select,
-.input-group textarea {
+.input-field {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
   font-family: inherit;
   background: white;
   color: var(--text-main);
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.input-group input:focus,
-.input-group select:focus,
-.input-group textarea:focus {
+.input-field:hover {
+  border-color: var(--border-hover);
+}
+
+.input-field:focus {
   outline: none;
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 1px var(--border-focus);
-  /* Minimalist focus ring */
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
-textarea {
-  min-height: 120px;
+textarea.input-field {
+  min-height: 100px;
   resize: vertical;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-/* Toggle Switch Box */
-.toggle-box {
+/* Custom Select Wrapper (optional for later, sticking to native for now but styled) */
+select.input-field {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  appearance: none;
+}
+
+/* Toggle Card */
+.toggle-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.2s;
   background: white;
 }
 
-.toggle-box:hover {
-  background: var(--bg-hover);
+.toggle-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-surface);
 }
 
-.toggle-box.active {
-  background: var(--bg-hover);
-  border-color: var(--text-muted);
+.toggle-card.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
 }
 
-/* Action Buttons */
-.generate-btn {
+.toggle-card.active span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Primary Button */
+.btn-primary {
   width: 100%;
-  padding: 14px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  font-size: 0.95rem;
-  cursor: pointer;
+  padding: 16px;
   border: none;
-  transition: transform 0.1s, opacity 0.2s;
-  margin-top: 10px;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--inverse);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
 }
 
-.generate-btn:hover {
-  opacity: 0.9;
+.btn-primary:not(:disabled):hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
 }
 
-.generate-btn:active {
-  transform: scale(0.98);
+.btn-primary:not(:disabled):active {
+  transform: translateY(0);
 }
 
-.generate-btn:disabled {
-  cursor: not-allowed;
-  opacity: 1;
-  /* Handled by inline styles in JS */
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
-/* --- PREVIEW PANEL (The Output) --- */
+/* --- PREVIEW PANEL --- */
 .preview-panel {
-  background: #f4f4f5;
-  /* Zinc-100 backdrop for the paper */
-  padding: 3rem;
+  background: #f0f0f4;
+  /* Slightly darker than sidebar to pop the paper */
+  padding: 4rem 2rem;
   overflow-y: auto;
   display: flex;
   justify-content: center;
 }
 
-/* The Lesson Plan "Paper" */
 .paper {
   background: white;
   width: 100%;
-  max-width: 850px;
-  /* Standard A4ish width */
-  min-height: 1100px;
-  padding: 50px 60px;
+  max-width: 800px;
+  min-height: 1000px;
+  padding: 60px 70px;
   box-shadow: var(--shadow-float);
-  border-radius: 2px;
-  /* Paper shouldn't be too rounded */
-  position: relative;
-  animation: fadeIn 0.4s ease-out;
-}
-
-/* Internal Paper Typography */
-.paper h1 {
-  font-weight: 700;
-  color: #000;
-}
-
-.questions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.download-btn {
-  transition: all 0.2s;
-}
-
-.download-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  border-radius: 4px;
+  /* Real paper isn't very rounded */
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* --- ANIMATIONS --- */
-@keyframes fadeIn {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
 
   to {
@@ -299,9 +361,13 @@ textarea {
   }
 }
 
-@keyframes spin {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
   to {
-    transform: rotate(360deg);
+    opacity: 1;
   }
 }
 
@@ -309,58 +375,25 @@ textarea {
   animation: spin 1s linear infinite;
 }
 
-/* --- UTILITY CLASSES --- */
-.flex-column-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.shadow-soft {
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
-}
-
-.badge-zinc {
-  background-color: #f4f4f5;
-  color: #18181b;
-  border: 1px solid #e4e4e7;
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 99px;
-  display: flex;
+/* Utility */
+.badge-clean {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.badge-detail {
-  background-color: white;
-  color: #a1a1aa;
-  border: 1px solid #f4f4f5;
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 99px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  text-transform: uppercase;
-}
-
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #a1a1aa;
-  margin-top: 15px;
-  margin-bottom: 8px;
-  border-bottom: 1px solid #f4f4f5;
-  padding-bottom: 4px;
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
 }

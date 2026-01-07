@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Library, Key } from 'lucide-react';
 
 export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, clearHistory }) {
     // Determine the base URL for assets (handles the 'base: /arc/' config)
@@ -11,18 +11,22 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
                 <img
                     src={`${baseUrl}arc.svg`}
                     alt="arc"
-                    style={{ width: '32px', height: '32px' }}
+                    style={{ width: '28px', height: '28px' }}
                 />
-                <span style={{ fontSize: '1.5rem', letterSpacing: '-0.04em', fontWeight: 600 }}>arc</span>
+                <span>arc</span>
             </div>
 
-            <div className="input-group" style={{ marginBottom: '20px' }}>
-                <label>API Key</label>
+            <div className="input-wrapper" style={{ marginBottom: '2rem' }}>
+                <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Key size={12} className="text-zinc-400" /> API Key
+                </label>
                 <input
+                    className="input-field"
                     type="password"
                     value={apiKey}
                     onChange={e => setApiKey(e.target.value)}
-                    style={{ fontFamily: 'monospace' }}
+                    placeholder="sk-..."
+                    style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}
                 />
             </div>
 

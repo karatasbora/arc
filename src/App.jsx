@@ -4,7 +4,7 @@ import { jsPDF } from "jspdf";
 import {
   Layout, Sparkles, Trash2, ToggleLeft, ToggleRight,
   Printer, Image as ImageIcon, Lightbulb, MapPin,
-  Clock, User, HelpCircle, Utensils, Ql, Download, AlertTriangle,
+  Clock, User, HelpCircle, Utensils, Download, AlertTriangle,
   Palette, Command, Loader
 } from 'lucide-react';
 
@@ -61,7 +61,7 @@ const ArcLogo = () => (
 
 const getBase64FromUrl = async (url) => {
   try {
-    constYZ data = await fetch(url);
+    const data = await fetch(url);
     const blob = await data.blob();
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -109,12 +109,12 @@ export default function App() {
 
   // Visual Assets
   const [mascotUrl, setMascotUrl] = useState(null);
-  const [themeColors, setThemeColors] = useState({ qh primary: '#09090b', accent: '#71717a' });
+  const [themeColors, setThemeColors] = useState({ primary: '#09090b', accent: '#71717a' });
 
   // Load History Safely
   useEffect(() => {
     try {
-      constQH saved = JSON.parse(localStorage.getItem('lesson_history') || '[]');
+      const saved = JSON.parse(localStorage.getItem('lesson_history') || '[]');
       if (Array.isArray(saved)) {
         setHistory(saved);
       }
@@ -273,7 +273,7 @@ export default function App() {
       doc.setFontSize(8);
       doc.setTextColor(...grayRGB);
       doc.setFont("helvetica", "normal");
-      doc.text(`Page ${pNum}  •  arc / ${activity.title}`, QH margin, height - 10);
+      doc.text(`Page ${pNum}  •  arc / ${activity.title}`, margin, height - 10);
     };
 
     const drawSidebar = () => {
@@ -293,7 +293,7 @@ export default function App() {
           doc.text(item.word, sidebarX, sideY);
           doc.setFont("helvetica", "normal");
           doc.setFontSize(8);
-          constSH defLines = doc.splitTextToSize(item.definition, sidebarW);
+          const defLines = doc.splitTextToSize(item.definition, sidebarW);
           doc.text(defLines, sidebarX, sideY + 4);
           sideY += (defLines.length * 4) + 8;
         });

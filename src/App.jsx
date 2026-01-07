@@ -154,253 +154,309 @@ export default function App() {
     }
   };
 
-  // --- ENHANCED PDF ENGINE ---
+  // --- MODERN CLEAN PDF ENGINE ---
   const downloadPDF = async () => {
     if (!activity) return;
     const doc = new jsPDF();
 
-    // 1. COMPACT METRICS
+    // 1. DESIGN CONFIG
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
-    const margin = 12; // Reduced from 15
-    const colWidth = width - (margin * 2);
+    const margin = 15;
+    const contentW = width - (margin * 2);
 
-    // Theme Colors
+    // Modern Color Palette
     const hexToRgb = (hex) => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
     };
     const primaryRGB = hexToRgb(themeColors.primary);
-    const darkText = [30, 41, 59];
-    const mutedText = [100, 116, 139];
+    const slate800 = [30, 41, 59];
+    const slate500 = [100, 116, 139];
+    const slate50 = [248, 250, 252];
+    const slate200 = [226, 232, 240];
 
-    // 2. STATE & HELPERS
+    // 2. STATE
     let cursorY = 0;
     let pageNumber = 1;
 
+    // 3. HELPERS
     const drawFooter = (pNum) => {
-      // Minimalist Footer line
-      doc.setDrawColor(200);
-      doc.line(margin, height - 12, width - margin, height - 12);
-
       doc.setFontSize(8);
-      doc.setTextColor(...mutedText);
-      doc.setFont("helvetica", "bold");
-      doc.text(`${activity.title}  |  UNIT 1`, margin, height - 8);
-      doc.text(`${pNum}`, width - margin, height - 8, { align: 'right' });
+      doc.setTextColor(...slate500);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Page ${pNum}  •  ${activity.title}`, width - margin, height - 10, { align: 'right' });
+
+      // Decorative bottom accent
+      doc.setDrawColor(...primaryRGB);
+      doc.setLineWidth(1);
+      doc.line(margin, height - 15, width - margin, height - 15);
     };
 
     const checkSpace = (required) => {
-      if (cursorY + required > height - 15) {
+      if (cursorY + required > height - 20) {
         drawFooter(pageNumber);
         doc.addPage();
         pageNumber++;
-        cursorY = 15; // Tighter top margin
+        cursorY = 20;
       }
     };
 
-    // Helper: Badge Icon
-    const drawBadge = (x, y, num) => {
-      doc.setFillColor(...primaryRGB);
-      doc.circle(x + 3, y - 1, 3.5, 'F');
-      doc.setTextColor(255);
-      doc.setFontSize(7);
-      doc.setFont("helvetica", "bold");
-      doc.text(num.toString(), x + 3, y, { align: 'center', baseline: 'middle' });
+    // --- RENDER START ---
+
+    // === 1. MODERN HEADER ===
+    // Primary Sidebar Strip
+    doc.setFillColor(...primaryRGB);
+    doc.rect(0, 0, 8, height, 'F');
+
+    // Title Block
+    cursorY = 20;
+    doc.setTextColor(...primaryRGB);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("ENGLISH LEARNING SERIES", margin + 5, cursorY);
+
+    cursorY += 10;
+    doc.setTextColor(...slate800);
+    doc.setFontSize(24);
+    doc.text(activity.title, margin + 5, cursorY);
+
+    // Meta Tags (Pill style)
+    cursorY += 8;
+    const drawPill = (text, x) => {
+      doc.setDrawColor(...slate200);
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(x, cursorY, doc.getTextWidth(text) + 10, 7, 3, 3, 'FD');
+      doc.setTextColor(...slate500);
+      doc.setFontSize(8);
+      doc.text(text, x + 5, cursorY + 4.5);
+      return x + doc.getTextWidth(text) + 15;
     };
 
-    // --- GENERATION START ---
+    let pillQX = margin + 5;
+    pillQX = drawPill(activity.meta.level, pillQX);
+    pillQX = drawPill(activity.meta.type.toUpperCase(), pillQX);
+    pillQX = drawPill("20 MIN", pillQX);
 
-    // === COMPACT HEADER (28mm height) ===
-    doc.setFillColor(...primaryRGB);
-    doc.rect(0, 0, width, 28, 'F');
-
-    // Title
-    doc.setTextColor(255);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text(activity.title, margin, 12);
-
-    // Subtitle Row
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text(`${activity.meta.level} • ${activity.meta.type.toUpperCase()} • 20 MIN`, margin, 20);
-
-    // Mascot (Smaller, Tucked in)
+    // Mascot
     if (mascotUrl) {
       try {
         const base64Img = await getBase64FromUrl(mascotUrl);
-        // Circle crop simulation (white ring)
-        doc.setDrawColor(255);
-        doc.setLineWidth(1);
-        doc.circle(width - 20, 14, 10, 'S');
-        doc.addImage(base64Img, 'JPEG', width - 30, 4, 20, 20);
+        doc.addImage(base64Img, 'JPEG', width - 50, 15, 35, 35);
       } catch (e) { console.error(e); }
     }
 
-    cursorY = 35; // Start content much higher
+    cursorY += 20;
 
-    // === STUDENT INFO BAR ===
-    doc.setFontSize(9);
-    doc.setTextColor(...mutedText);
-    doc.text("Name: ______________________", margin, cursorY);
-    doc.text("Date: ______________________", width - margin - 40, cursorY);
-    cursorY += 8;
+    // === 2. STUDENT FIELDS ===
+    doc.setDrawColor(...slate200);
+    doc.line(margin + 5, cursorY, width - margin, cursorY);
+    cursorY += 10;
 
-    // === SECTION 1: CONTEXT (Compact Box) ===
+    doc.setFontSize(10);
+    doc.setTextColor(...slate500);
+    doc.text("Name: ______________________", margin + 5, cursorY);
+    doc.text("Date: ______________________", width / 2, cursorY);
+
+    cursorY += 15;
+
+    // === 3. INSTRUCTIONS (Featured Box) ===
     checkSpace(30);
+    doc.setFillColor(...slate50);
+    doc.setDrawColor(...primaryRGB);
+    doc.setLineWidth(0.5);
 
-    // Instruction Box
-    doc.setFillColor(248, 250, 252); // Slate-50
-    doc.setDrawColor(226, 232, 240); // Slate-200
-    // Calculate height dynamically
-    const instrLines = doc.splitTextToSize(activity.student_worksheet.instructions, colWidth - 8);
-    const boxH = (instrLines.length * 4) + 12; // Tight padding
+    // Calculate height
+    const instrLines = doc.splitTextToSize(activity.student_worksheet.instructions, contentW - 20);
+    const instrH = (instrLines.length * 5) + 15;
 
-    doc.roundedRect(margin, cursorY, colWidth, boxH, 2, 2, 'FD');
+    doc.roundedRect(margin + 5, cursorY, contentW - 5, instrH, 2, 2, 'FD');
 
-    // Label
-    doc.setTextColor(...primaryRGB);
+    // "Icon" Circle
+    doc.setFillColor(...primaryRGB);
+    doc.circle(margin + 15, cursorY + 10, 3, 'F');
+
+    doc.setTextColor(...slate800);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.text("INSTRUCTIONS", margin + 4, cursorY + 6);
+    doc.text("INSTRUCTIONS", margin + 22, cursorY + 11);
 
-    // Text
-    doc.setTextColor(...darkText);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text(instrLines, margin + 4, cursorY + 11);
+    doc.setTextColor(...slate500);
+    doc.text(instrLines, margin + 22, cursorY + 19);
 
-    cursorY += boxH + 8; // Small gap
+    cursorY += instrH + 15;
 
-    // === SECTION 2: QUESTIONS (Grid Logic) ===
-
+    // === 4. QUESTIONS (Card Style) ===
     activity.student_worksheet.questions.forEach((q, i) => {
-      // 1. Calculate height needed
-      let heightNeeded = 15; // Base for question text
+      // Calculate Question Card Height
+      let cardH = 20; // Base padding
+      const qLines = doc.splitTextToSize(q.question_text, contentW - 30);
+      cardH += qLines.length * 6;
 
-      // Heuristic: Do options fit on one line?
-      const isCompactOptions = q.options && q.options.join(' ').length < 60;
-
-      if (q.options) {
-        heightNeeded += isCompactOptions ? 8 : (q.options.length * 6);
+      // Options Height
+      let hasOptions = false;
+      if (q.options && q.options.length > 0) {
+        hasOptions = true;
+        // Check if options fit on one line (Horizontal Grid)
+        const totalOptLen = q.options.join('').length;
+        cardH += (totalOptLen < 50) ? 10 : (q.options.length * 7);
       } else if (activityType === 'true_false') {
-        heightNeeded += 8;
+        cardH += 10;
       } else {
-        heightNeeded += 12; // Writing lines
+        cardH += 15; // Writing space
       }
 
-      if (q.hint && isScaffolded) heightNeeded += 8; // Hint strip
+      // Hint Height
+      if (q.hint && isScaffolded) cardH += 12;
 
-      checkSpace(heightNeeded);
+      checkSpace(cardH + 5);
 
-      // 2. Render Question
-      drawBadge(margin, cursorY + 3, i + 1);
+      // Draw Card Container
+      // Use very light border for definition, no fill to keep it clean
+      doc.setDrawColor(...slate200);
+      doc.setLineWidth(0.2);
+      doc.roundedRect(margin + 5, cursorY, contentW - 5, cardH, 3, 3);
 
-      doc.setTextColor(...darkText);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5); // Slightly smaller professional font
+      // Question Number (Accent Box)
+      doc.setFillColor(...primaryRGB);
+      doc.path([
+        { op: 'm', c: [margin + 5, cursorY + 3] }, // Start top-left radius
+        { op: 'l', c: [margin + 5, cursorY + 12] },
+        { op: 'l', c: [margin + 12, cursorY + 12] },
+        { op: 'l', c: [margin + 12, cursorY + 3] },
+        { op: 'c', c: [margin + 12, cursorY, margin + 5, cursorY, margin + 5, cursorY + 3] } // Close with radius
+      ]);
+      doc.fill();
 
-      // Text wrapping with indent
-      const qLines = doc.splitTextToSize(q.question_text, colWidth - 10);
-      doc.text(qLines, margin + 10, cursorY + 3);
-
-      let localY = cursorY + (qLines.length * 4.5) + 2;
-
-      // 3. Render Options
-      doc.setFont("helvetica", "normal");
+      doc.setTextColor(255);
       doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.text((i + 1).toString(), margin + 8.5, cursorY + 9, { align: 'center' });
 
-      if (q.options && q.options.length > 0) {
-        if (isCompactOptions) {
-          // HORIZONTAL LAYOUT (Save space!)
-          let optX = margin + 10;
+      // Question Text
+      doc.setTextColor(...slate800);
+      doc.setFontSize(11);
+      doc.text(qLines, margin + 18, cursorY + 9);
+
+      let localY = cursorY + 12 + (qLines.length * 5);
+
+      // Render Options
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(...slate500);
+
+      if (hasOptions) {
+        const totalOptLen = q.options.join('').length;
+
+        if (totalOptLen < 50) {
+          // Horizontal Layout
+          let optX = margin + 18;
           q.options.forEach(opt => {
-            doc.rect(optX, localY - 3, 3, 3); // Checkbox
-            doc.text(opt, optX + 5, localY);
-            optX += (doc.getTextWidth(opt) + 15); // Dynamic spacing
+            // Circle Checkbox
+            doc.setDrawColor(...slate200);
+            doc.circle(optX + 2, localY - 1, 2.5);
+            doc.text(opt, optX + 8, localY);
+            optX += doc.getTextWidth(opt) + 20;
           });
-          localY += 6;
+          localY += 10;
         } else {
-          // VERTICAL LAYOUT (Standard)
+          // Vertical Layout
           q.options.forEach(opt => {
-            doc.rect(margin + 10, localY - 3, 3, 3);
-            doc.text(opt, margin + 16, localY);
-            localY += 5; // Very tight leading
+            doc.setDrawColor(...slate200);
+            doc.circle(margin + 20, localY - 1, 2.5);
+            doc.text(opt, margin + 26, localY);
+            localY += 7;
           });
         }
       } else if (activityType === 'true_false') {
-        doc.text("[  ] TRUE      [  ] FALSE", margin + 10, localY);
-        localY += 6;
+        doc.text("TRUE     /     FALSE", margin + 18, localY);
+        localY += 10;
       } else {
-        // Writing Lines (Dotted look is cleaner)
-        doc.setDrawColor(200);
-        doc.setLineDash([1, 1], 0);
-        doc.line(margin + 10, localY + 4, width - margin, localY + 4);
-        doc.setLineDash([], 0); // Reset
-        localY += 8;
+        doc.setDrawColor(...slate200);
+        doc.line(margin + 18, localY + 5, width - margin - 10, localY + 5);
+        localY += 15;
       }
 
-      // 4. Render Slim Hint (Inline Strip)
+      // Integrated Footer Hint
       if (q.hint && isScaffolded) {
-        doc.setFillColor(255, 251, 235); // Amber-50
-        doc.rect(margin + 10, localY - 3, colWidth - 10, 6, 'F');
+        doc.setDrawColor(...slate200);
+        doc.line(margin + 5, localY - 3, width - margin, localY - 3); // Separator line inside card
 
+        doc.setFillColor(255, 251, 235); // Amber-50 bg
+        doc.rect(margin + 6, localY - 2, contentW - 7, cardH - (localY - cursorY) + 1, 'F'); // Fill bottom of card
+
+        doc.setFontSize(9);
         doc.setTextColor(180, 83, 9); // Amber-700
-        doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
-        doc.text("HINT:", margin + 12, localY + 1);
+        doc.text("HINT:", margin + 15, localY + 5);
 
         doc.setFont("helvetica", "italic");
-        doc.text(q.hint, margin + 22, localY + 1);
-        localY += 6;
+        doc.text(q.hint, margin + 28, localY + 5);
       }
 
-      cursorY = localY + 4; // Minimal gap between questions
+      cursorY += cardH + 8; // Spacing between cards
     });
 
     drawFooter(pageNumber);
 
-    // === PAGE END: TEACHER KEY (Compact) ===
-    // Only add new page if we really have to, otherwise try to fit at bottom?
-    // Standards usually dictate a new page for keys so students don't see it.
+    // === 5. TEACHER'S GUIDE ===
     doc.addPage();
     pageNumber++;
-    cursorY = 15;
 
-    doc.setFillColor(50);
-    doc.rect(0, 0, width, 15, 'F'); // Mini Header
-    doc.setTextColor(255);
+    // Sidebar for Teacher Page
+    doc.setFillColor(51, 65, 85); // Slate 700
+    doc.rect(0, 0, 8, height, 'F');
+
+    cursorY = 20;
+    doc.setTextColor(51, 65, 85);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("TEACHER'S COMPANION", margin + 5, cursorY);
+
+    // Rationale Box
+    cursorY += 15;
+    doc.setFillColor(...slate50);
+    doc.roundedRect(margin + 5, cursorY, contentW - 5, 40, 2, 2, 'F');
+
     doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("TEACHER'S COMPANION", margin, 10);
+    doc.setTextColor(...primaryRGB);
+    doc.text("PEDAGOGICAL FOCUS", margin + 10, cursorY + 10);
 
-    cursorY = 25;
-
-    // Two Column Layout for Teacher Page
-    // Col 1: Rationale
-    doc.setTextColor(...darkText);
-    doc.setFontSize(9);
-    doc.text("RATIONALE:", margin, cursorY);
-    const ratLines = doc.splitTextToSize(activity.teacher_guide.rationale, (colWidth / 2) - 5);
+    doc.setTextColor(...slate500);
     doc.setFont("helvetica", "normal");
-    doc.text(ratLines, margin, cursorY + 5);
+    const ratLines = doc.splitTextToSize(activity.teacher_guide.rationale, contentW - 20);
+    doc.text(ratLines, margin + 10, cursorY + 18);
 
-    // Col 2: Answers
-    const col2X = (width / 2) + 5;
+    cursorY += 50;
+
+    // Answer Key Table
+    doc.setTextColor(...slate800);
     doc.setFont("helvetica", "bold");
-    doc.text("ANSWER KEY:", col2X, 25);
-    doc.setFont("helvetica", "normal");
+    doc.text("ANSWER KEY", margin + 5, cursorY);
+    cursorY += 10;
 
-    let keyY = 30;
     if (activity.teacher_guide.key_answers) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+
       activity.teacher_guide.key_answers.forEach((ans, i) => {
-        doc.text(`${i + 1}. ${ans}`, col2X, keyY);
-        keyY += 5;
+        // Zebra striping
+        if (i % 2 === 0) {
+          doc.setFillColor(...slate50);
+          doc.rect(margin + 5, cursorY - 4, contentW - 5, 8, 'F');
+        }
+
+        doc.setTextColor(...slate800);
+        doc.text(`${i + 1}.`, margin + 10, cursorY + 1.5);
+        doc.setTextColor(22, 163, 74); // Green 600
+        doc.text(ans, margin + 20, cursorY + 1.5);
+
+        cursorY += 8;
       });
     }
 
-    doc.save(`${activity.title.replace(/\s+/g, '_')}_Compact.pdf`);
+    drawFooter(pageNumber);
+    doc.save(`${activity.title.replace(/\s+/g, '_')}_Lesson.pdf`);
   };
 
 

@@ -4,10 +4,12 @@ import { jsPDF } from "jspdf";
 import {
   Layout, Download, Sparkles, Trash2,
   Settings, BookOpen, ToggleLeft, ToggleRight,
-  FileText, Palette, Printer, Image as ImageIcon
+  FileText, Palette, Printer, Image as ImageIcon,
+  Lightbulb, MapPin, Clock, User, HelpCircle, Utensils
 } from 'lucide-react';
 
-// Helper to convert URL to Base64 for PDF embedding
+// --- HELPERS ---
+
 const getBase64FromUrl = async (url) => {
   const data = await fetch(url);
   const blob = await data.blob();
@@ -18,6 +20,16 @@ const getBase64FromUrl = async (url) => {
   });
 };
 
+// Keyword Detector for Visual Cues (Shared with PDF Engine)
+const getCategoryBadge = (text) => {
+  const lower = text.toLowerCase();
+  if (lower.includes('where') || lower.includes('place') || lower.includes('go')) return { label: "LOCATION", icon: <MapPin size={12} />, color: "bg-blue-100 text-blue-700" };
+  if (lower.includes('who')) return { label: "CHARACTER", icon: <User size={12} />, color: "bg-purple-100 text-purple-700" };
+  if (lower.includes('what') && (lower.includes('eat') || lower.includes('food'))) return { label: "FOOD", icon: <Utensils size={12} />, color: "bg-orange-100 text-orange-700" };
+  if (lower.includes('when') || lower.includes('time')) return { label: "TIME", icon: <Clock size={12} />, color: "bg-amber-100 text-amber-700" };
+  return { label: "DETAIL", icon: <HelpCircle size={12} />, color: "bg-slate-100 text-slate-700" };
+};
+
 export default function App() {
   // --- STATE ---
   const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_key') || '');
@@ -26,6 +38,7 @@ export default function App() {
   const [cefrLevel, setCefrLevel] = useState('B1');
   const [isScaffolded, setIsScaffolded] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [viewMode, setViewMode] = useState('student'); // 'student' or 'teacher'
 
   // The Data
   const [activity, setActivity] = useState(null);
@@ -83,7 +96,7 @@ export default function App() {
     if (!apiKey) return alert("Please enter API Key");
     setLoading(true);
     setActivity(null);
-    setMascotUrl(null); // Reset image
+    setMascotUrl(null);
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
@@ -111,7 +124,7 @@ export default function App() {
         1. Create the lesson content.
         2. DESIGN A VISUAL THEME based on the story. 
            - Pick a "primary_color" hex code (e.g. #009246 for Italy).
-           - Write a "mascot_prompt": A description for an AI image generator to create a cute header illustration (e.g. "Cartoon pig eating pizza in Rome vector art").
+           - Write a "mascot_prompt": A description for an AI image generator to create a cute header illustration.
         
         OUTPUT JSON ONLY:
         {
@@ -139,8 +152,7 @@ export default function App() {
       setActivity(data);
       setThemeColors({ primary: data.visual_theme.primary_color, accent: '#4b5563' });
 
-      // --- GENERATE IMAGE ---
-      // We use Pollinations.ai (Free, No Key) with the prompt from Gemini
+      // Image Gen
       const promptEncoded = encodeURIComponent(data.visual_theme.mascot_prompt + " white background, high quality, vector style, flat illustration");
       const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=400&height=400&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
 
@@ -154,23 +166,20 @@ export default function App() {
     }
   };
 
-  // --- FINAL POLISH: SIDEBAR GLOSSARY & VISUAL CUES ---
+  // --- PDF ENGINE (FINAL POLISH) ---
   const downloadPDF = async () => {
     if (!activity) return;
     const doc = new jsPDF();
-
-    // 1. GRID SYSTEM
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
     const margin = 15;
 
-    // Layout: Main Content (65%) | Gutter (5%) | Sidebar (30%)
+    // Layout
     const sidebarW = (width - (margin * 2)) * 0.30;
     const mainW = (width - (margin * 2)) * 0.65;
     const gutter = (width - (margin * 2)) * 0.05;
     const sidebarX = margin + mainW + gutter;
 
-    // Theme Colors
     const hexToRgb = (hex) => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
@@ -180,7 +189,6 @@ export default function App() {
     const slate500 = [100, 116, 139];
     const slate100 = [241, 245, 249];
 
-    // 2. HELPERS
     let cursorY = 0;
     let pageNumber = 1;
 
@@ -195,12 +203,10 @@ export default function App() {
     };
 
     const drawSidebar = () => {
-      // Gray background for sidebar area
       doc.setFillColor(250, 250, 250);
       doc.rect(sidebarX - gutter / 2, 0, sidebarW + margin + gutter / 2, height, 'F');
 
-      // Sidebar Header: Glossary
-      let sideY = 60; // Start below main header
+      let sideY = 60;
 
       if (activity.student_worksheet.glossary && activity.student_worksheet.glossary.length > 0) {
         doc.setFillColor(...primaryRGB);
@@ -211,40 +217,31 @@ export default function App() {
         doc.text("KEY VOCABULARY", sidebarX + 5, sideY + 5.5);
 
         sideY += 15;
-
         doc.setTextColor(...slate800);
         activity.student_worksheet.glossary.forEach((item) => {
-          // Word
           doc.setFont("helvetica", "bold");
           doc.setFontSize(9);
           doc.text(item.word, sidebarX, sideY);
-
-          // Definition
           doc.setFont("helvetica", "normal");
           doc.setFontSize(8);
           const defLines = doc.splitTextToSize(item.definition, sidebarW);
           doc.text(defLines, sidebarX, sideY + 4);
-
           sideY += (defLines.length * 4) + 8;
         });
       }
 
-      // Visual Tips Box
       sideY += 10;
       doc.setDrawColor(...primaryRGB);
       doc.setLineWidth(0.5);
       doc.roundedRect(sidebarX, sideY, sidebarW, 40, 2, 2);
-
       doc.setTextColor(...primaryRGB);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
       doc.text("QUICK TIPS", sidebarX + 5, sideY + 8);
-
       doc.setTextColor(...slate500);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
-      const tipText = "Look for keywords in the question. Read the story twice: once for the main idea, once for details.";
-      doc.text(doc.splitTextToSize(tipText, sidebarW - 10), sidebarX + 5, sideY + 15);
+      doc.text(doc.splitTextToSize("Look for keywords. Read the story twice.", sidebarW - 10), sidebarX + 5, sideY + 15);
     };
 
     const checkSpace = (required) => {
@@ -253,99 +250,72 @@ export default function App() {
         doc.addPage();
         pageNumber++;
         cursorY = 20;
-        drawSidebar(); // Re-draw sidebar background on new page
+        drawSidebar();
       }
     };
 
-    // Keyword Detector for "Visual Cues"
-    const getCategoryBadge = (text) => {
+    // Helper for badges in PDF (Simplified text version)
+    const getPdfBadge = (text) => {
       const lower = text.toLowerCase();
-      if (lower.includes('where') || lower.includes('place') || lower.includes('go')) return "LOCATION";
+      if (lower.includes('where') || lower.includes('place')) return "LOCATION";
       if (lower.includes('who')) return "CHARACTER";
-      if (lower.includes('what') && (lower.includes('eat') || lower.includes('food'))) return "FOOD";
-      if (lower.includes('when') || lower.includes('time')) return "TIME";
-      if (lower.includes('why')) return "REASON";
+      if (lower.includes('food') || lower.includes('eat')) return "FOOD";
+      if (lower.includes('when')) return "TIME";
       return "DETAIL";
     };
 
-    // --- RENDER START ---
-
-    // Initial Page Setup
     drawSidebar();
-
-    // === HEADER (Full Width) ===
     doc.setFillColor(...primaryRGB);
     doc.rect(0, 0, width, 40, 'F');
-
-    // Title
     doc.setTextColor(255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
     doc.text(activity.title, margin, 18);
-
-    // Meta
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text(`${activity.meta.level} LEVEL  •  ${activity.meta.type.toUpperCase()}`, margin, 28);
 
-    // Mascot (Top Right Overlay)
     if (mascotUrl) {
       try {
         const base64Img = await getBase64FromUrl(mascotUrl);
         doc.setDrawColor(255);
         doc.setLineWidth(2);
-        doc.circle(width - 30, 20, 16, 'S'); // White ring
+        doc.circle(width - 30, 20, 16, 'S');
         doc.addImage(base64Img, 'JPEG', width - 42, 8, 24, 24);
       } catch (e) { console.error(e); }
     }
 
     cursorY = 55;
-
-    // === STUDENT INFO ===
     doc.setTextColor(...slate500);
     doc.setFontSize(9);
     doc.text("Name: ______________________", margin, cursorY);
     doc.text("Date: ______________________", margin + mainW / 2, cursorY);
-
     cursorY += 15;
 
-    // === INSTRUCTIONS ===
     doc.setFillColor(...slate100);
     doc.roundedRect(margin, cursorY, mainW, 25, 2, 2, 'F');
     doc.setTextColor(...primaryRGB);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.text("INSTRUCTIONS", margin + 5, cursorY + 8);
-
     doc.setTextColor(...slate800);
     doc.setFont("helvetica", "normal");
     const instrLines = doc.splitTextToSize(activity.student_worksheet.instructions, mainW - 10);
     doc.text(instrLines, margin + 5, cursorY + 16);
-
     cursorY += 35;
 
-    // === QUESTIONS LOOP ===
     activity.student_worksheet.questions.forEach((q, i) => {
-      // Calc Height
       doc.setFontSize(11);
       const qLines = doc.splitTextToSize(q.question_text, mainW - 20);
-      let boxH = (qLines.length * 6) + 15; // Base
-
+      let boxH = (qLines.length * 6) + 15;
       if (q.options) boxH += (q.options.length * 8) + 5;
       else if (activityType === 'true_false') boxH += 10;
       else boxH += 15;
-
       if (q.hint && isScaffolded) boxH += 12;
 
       checkSpace(boxH + 5);
 
-      // Question Card
-      doc.setDrawColor(...slate500);
-      doc.setLineWidth(0.1);
-      // doc.rect(margin, cursorY, mainW, boxH); // Debug border? No, keep it clean.
-
-      // 1. Category Badge (Visual Cue)
-      const cat = getCategoryBadge(q.question_text);
+      const cat = getPdfBadge(q.question_text);
       doc.setFillColor(...primaryRGB);
       doc.roundedRect(margin, cursorY, doc.getTextWidth(cat) + 6, 6, 1, 1, 'F');
       doc.setTextColor(255);
@@ -353,23 +323,18 @@ export default function App() {
       doc.setFont("helvetica", "bold");
       doc.text(cat, margin + 3, cursorY + 4);
 
-      // 2. Question Text
       doc.setTextColor(...slate800);
       doc.setFontSize(11);
       doc.text(qLines, margin, cursorY + 12);
 
       let localY = cursorY + 12 + (qLines.length * 5);
-
-      // 3. Inputs (Checkboxes)
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
 
       if (q.options) {
         q.options.forEach(opt => {
-          // Square Checkbox
           doc.setDrawColor(...slate500);
           doc.rect(margin, localY - 3, 4, 4);
-
           doc.setTextColor(...slate500);
           doc.text(opt, margin + 8, localY);
           localY += 7;
@@ -386,29 +351,23 @@ export default function App() {
         localY += 10;
       }
 
-      // 4. Scaffolded Hint
       if (q.hint && isScaffolded) {
-        doc.setFillColor(254, 243, 199); // Amber-100
+        doc.setFillColor(254, 243, 199);
         doc.roundedRect(margin, localY, mainW, 8, 1, 1, 'F');
-        doc.setTextColor(180, 83, 9); // Amber-700
+        doc.setTextColor(180, 83, 9);
         doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
         doc.text(`HINT: ${q.hint}`, margin + 5, localY + 5.5);
         localY += 10;
       }
-
-      cursorY = localY + 8; // Spacer
+      cursorY = localY + 8;
     });
 
     drawFooter(pageNumber);
 
-    // === TEACHER PAGE (Full Width) ===
+    // TEACHER PAGE
     doc.addPage();
     pageNumber++;
-    doc.setFillColor(30);
-    doc.rect(0, 0, width, height, 'F'); // Dark background mode? No, standard.
-
-    // Header
     doc.setFillColor(...slate800);
     doc.rect(0, 0, width, 40, 'F');
     doc.setTextColor(255);
@@ -417,26 +376,19 @@ export default function App() {
     doc.text("TEACHER'S COMPANION", margin, 25);
 
     cursorY = 55;
-
-    // Content
     doc.setTextColor(0);
     doc.setFontSize(12);
     doc.text("Pedagogical Focus", margin, cursorY);
     cursorY += 10;
-
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     const ratLines = doc.splitTextToSize(activity.teacher_guide.rationale, width - (margin * 2));
     doc.text(ratLines, margin, cursorY);
-
     cursorY += (ratLines.length * 5) + 20;
-
-    // Keys
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text("Answer Key", margin, cursorY);
     cursorY += 10;
-
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     if (activity.teacher_guide.key_answers) {
@@ -518,51 +470,157 @@ export default function App() {
           </button>
         </div>
 
-        <div className="preview-panel" style={{ background: '#f0f9ff' }}>
+        <div className="preview-panel" style={{ background: '#f8fafc', overflowY: 'auto' }}>
           {activity ? (
-            <div className="paper">
-              {/* VISUAL HEADER PREVIEW */}
-              <div style={{
-                background: themeColors.primary,
-                padding: '20px', borderRadius: '8px 8px 0 0',
-                color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+            <div className="paper-container" style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <div className="paper" style={{
+                width: '100%', maxWidth: '1000px', background: 'white', minHeight: '1200px',
+                boxShadow: '0 20px 50px -10px rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden',
+                display: 'grid', gridTemplateColumns: '7fr 3fr' // SPLIT LAYOUT
               }}>
-                <div style={{ flex: 1 }}>
-                  <h1 style={{ margin: 0, fontSize: '1.5rem' }}>{activity.title}</h1>
-                  <div style={{ opacity: 0.8, fontSize: '0.9rem' }}>{activity.meta.level} • {activity.meta.type.toUpperCase()}</div>
-                </div>
-                {mascotUrl && (
-                  <img src={mascotUrl} alt="Mascot" style={{ width: '80px', height: '80px', borderRadius: '8px', border: '2px solid white', objectFit: 'cover' }} />
-                )}
-              </div>
 
-              <div style={{ padding: '30px' }}>
-                <button onClick={downloadPDF} className="download-btn" style={{ width: '100%', marginBottom: '20px', background: '#1f2937' }}>
-                  <Printer size={18} /> Download Illustrated PDF
-                </button>
+                {/* --- LEFT: MAIN CONTENT --- */}
+                <div className="main-content" style={{ padding: '40px', borderRight: '1px solid #f1f5f9' }}>
 
-                <div style={{ background: '#f9fafb', padding: '15px', borderRadius: '8px', borderLeft: `4px solid ${themeColors.primary}` }}>
-                  <strong>Instructions:</strong> {activity.student_worksheet.instructions}
-                </div>
-
-                <div style={{ marginTop: '30px' }}>
-                  {activity.student_worksheet.questions.map((q, i) => (
-                    <div key={i} style={{ marginBottom: '15px', borderBottom: '1px dashed #eee', paddingBottom: '10px' }}>
-                      <div style={{ fontWeight: 'bold', color: themeColors.primary }}>{i + 1}. {q.question_text}</div>
-                      {q.options && q.options.map(opt => <div key={opt} style={{ marginLeft: '10px', fontSize: '0.9rem' }}>○ {opt}</div>)}
+                  {/* HERO HEADER */}
+                  <div style={{ background: themeColors.primary, margin: '-40px -40px 30px -40px', padding: '40px', color: 'white' }}>
+                    <h1 style={{ margin: 0, fontSize: '2rem' }}>{activity.title}</h1>
+                    <div style={{ marginTop: '10px', opacity: 0.9, fontSize: '0.9rem', display: 'flex', gap: '15px' }}>
+                      <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px' }}>{activity.meta.level}</span>
+                      <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px' }}>{activity.meta.type.toUpperCase()}</span>
+                      <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '20px' }}>20 MIN</span>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* INSTRUCTIONS */}
+                  <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', borderLeft: `4px solid ${themeColors.primary}`, marginBottom: '30px' }}>
+                    <div style={{ color: themeColors.primary, fontWeight: 'bold', fontSize: '0.8rem', marginBottom: '5px' }}>INSTRUCTIONS</div>
+                    <div style={{ color: '#334155' }}>{activity.student_worksheet.instructions}</div>
+                  </div>
+
+                  {/* QUESTIONS WITH BADGES */}
+                  <div className="questions-list">
+                    {activity.student_worksheet.questions.map((q, i) => {
+                      const badge = getCategoryBadge(q.question_text);
+                      return (
+                        <div key={i} style={{ marginBottom: '25px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                            <span className={`badge ${badge.color}`} style={{
+                              fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px',
+                              display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase'
+                            }}>
+                              {badge.icon} {badge.label}
+                            </span>
+                          </div>
+
+                          <div style={{ fontSize: '1.05rem', fontWeight: '600', color: '#1e293b', marginBottom: '10px' }}>
+                            <span style={{ color: themeColors.primary, marginRight: '8px' }}>{i + 1}.</span>
+                            {q.question_text}
+                          </div>
+
+                          <div style={{ paddingLeft: '20px' }}>
+                            {q.options ? (
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                {q.options.map(opt => (
+                                  <div key={opt} style={{
+                                    padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '6px',
+                                    fontSize: '0.9rem', color: '#475569', display: 'flex', gap: '8px', alignItems: 'center'
+                                  }}>
+                                    <div style={{ width: '12px', height: '12px', border: '1px solid #cbd5e1', borderRadius: '2px' }}></div>
+                                    {opt}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div style={{ borderBottom: '1px dashed #cbd5e1', height: '30px', width: '100%' }}></div>
+                            )}
+                          </div>
+
+                          {q.hint && isScaffolded && (
+                            <div style={{
+                              marginTop: '10px', background: '#fffbeb', padding: '8px 12px', borderRadius: '6px',
+                              border: '1px solid #fcd34d', display: 'flex', gap: '8px', alignItems: 'center'
+                            }}>
+                              <Lightbulb size={14} color="#b45309" />
+                              <span style={{ fontSize: '0.85rem', color: '#b45309', fontStyle: 'italic' }}>Hint: {q.hint}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <button onClick={downloadPDF} className="download-btn" style={{ marginTop: '40px', width: 'auto', background: '#1e293b' }}>
+                    <Printer size={18} /> Download Visual PDF
+                  </button>
                 </div>
+
+                {/* --- RIGHT: SIDEBAR (ASSETS & GLOSSARY) --- */}
+                <div className="paper-sidebar" style={{ background: '#f8fafc', padding: '30px' }}>
+
+                  {/* MASCOT CARD */}
+                  {mascotUrl && (
+                    <div style={{
+                      background: 'white', padding: '10px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                      marginBottom: '30px', textAlign: 'center'
+                    }}>
+                      <img src={mascotUrl} style={{ width: '100%', borderRadius: '8px' }} />
+                      <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '8px', fontWeight: 'bold' }}>LESSON MASCOT</div>
+                    </div>
+                  )}
+
+                  {/* GLOSSARY */}
+                  {activity.student_worksheet.glossary && (
+                    <div style={{ marginBottom: '30px' }}>
+                      <h4 style={{
+                        fontSize: '0.8rem', textTransform: 'uppercase', color: themeColors.primary,
+                        borderBottom: `2px solid ${themeColors.primary}`, paddingBottom: '8px', marginBottom: '15px'
+                      }}>Key Vocabulary</h4>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {activity.student_worksheet.glossary.map((g, i) => (
+                          <div key={i}>
+                            <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#334155' }}>{g.word}</div>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: '1.4' }}>{g.definition}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TEACHER TIPS (Preview Only) */}
+                  <div style={{ background: '#eff6ff', padding: '15px', borderRadius: '8px', border: '1px solid #dbeafe' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px', color: '#1e40af' }}>
+                      <HelpCircle size={16} />
+                      <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Teacher Tip</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: '#1e3a8a', margin: 0 }}>
+                      Ask students to find the <strong>Location Badge</strong> questions first to set the scene before reading details.
+                    </p>
+                  </div>
+
+                </div>
+
               </div>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', opacity: 0.3, marginTop: '100px' }}>
+            <div style={{ textAlign: 'center', opacity: 0.3, marginTop: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Palette size={64} />
               <h3>Visual Engine Ready</h3>
+              <p>Enter a topic to generate a beautiful lesson</p>
             </div>
           )}
         </div>
       </main>
+
+      {/* Tailwind Utility Classes Injection for badges */}
+      <style>{`
+        .bg-blue-100 { background-color: #dbeafe; } .text-blue-700 { color: #1d4ed8; }
+        .bg-purple-100 { background-color: #f3e8ff; } .text-purple-700 { color: #7e22ce; }
+        .bg-orange-100 { background-color: #ffedd5; } .text-orange-700 { color: #c2410c; }
+        .bg-amber-100 { background-color: #fef3c7; } .text-amber-700 { color: #b45309; }
+        .bg-slate-100 { background-color: #f1f5f9; } .text-slate-700 { color: #334155; }
+      `}</style>
     </div>
   );
 }

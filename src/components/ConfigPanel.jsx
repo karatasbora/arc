@@ -21,7 +21,7 @@ export default function ConfigPanel({
                 </div>
                 <div>
                     <h2 className="panel-title">Configuration</h2>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--cf-text-muted)' }}>Customize your lesson parameters</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--cf-text-muted)' }}>Customize your material parameters</p>
                 </div>
             </div>
 
@@ -99,6 +99,18 @@ export default function ConfigPanel({
                     <div
                         className={`toggle-card ${isScaffolded ? 'active' : ''}`}
                         onClick={() => setIsScaffolded(!isScaffolded)}
+                        style={{
+                            border: '1px solid var(--cf-border)',
+                            borderRadius: 'var(--radius-sm)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            background: 'var(--cf-input-bg)',
+                            color: 'var(--cf-text-main)',
+                            ...(isScaffolded && {
+                                background: 'var(--accent-soft)',
+                                borderColor: 'var(--cf-accent)'
+                            })
+                        }}
                     >
                         <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>Scaffolding</span>
                         {isScaffolded ? <ToggleRight size={20} className="text-indigo-500" style={{ color: 'var(--accent)' }} /> : <ToggleLeft size={20} color="#d4d4d8" />}
@@ -148,7 +160,7 @@ export default function ConfigPanel({
                     ) : (
                         <>
                             <Sparkles size={18} />
-                            <span>Generate Lesson</span>
+                            <span>Generate Material</span>
                         </>
                     )}
                 </button>

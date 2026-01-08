@@ -96,7 +96,7 @@ export const generatePDF = async (activity, mascotUrl, isScaffolded) => {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(...grayRGB);
-    doc.text(`${(activity.meta?.level || 'A1').toUpperCase()}  •  ${(activity.meta?.type || 'LESSON').toUpperCase()}  •  20 MIN`, Qm, 30);
+    doc.text(`${(activity.meta?.level || 'A1').toUpperCase()}  •  ${(activity.meta?.type || 'MATERIAL').toUpperCase()}  •  20 MIN`, Qm, 30);
 
     // Divider
     doc.setDrawColor(230, 230, 230);
@@ -186,5 +186,5 @@ export const generatePDF = async (activity, mascotUrl, isScaffolded) => {
     });
 
     drawFooter(pageNumber);
-    doc.save(`arc_lesson_${activity.title.replace(/\s+/g, '_').toLowerCase()}.pdf`);
+    doc.save(`arc_material_${activity.title.replace(/\s+/g, '_').toLowerCase()}.pdf`);
 };

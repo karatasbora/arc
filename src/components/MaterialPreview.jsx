@@ -12,7 +12,7 @@ const getCategoryBadge = (text) => {
     return { label: "detail", icon: <HelpCircle size={10} />, class: "badge-detail" };
 };
 
-export default function LessonPreview({ activity, mascotUrl, isScaffolded, onDownload }) {
+export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onDownload }) {
     if (!activity) {
         return (
             <div className="preview-panel">
@@ -25,7 +25,7 @@ export default function LessonPreview({ activity, mascotUrl, isScaffolded, onDow
                     </div>
                     <h3 style={{ fontSize: '1.2rem', color: 'var(--zinc-900)', marginBottom: '8px', fontWeight: 600 }}>Start Your Blueprint</h3>
                     <p style={{ maxWidth: '300px', textAlign: 'center', fontSize: '0.9rem' }}>
-                        Configure the lesson parameters and click Generate to construct a new lesson plan.
+                        Configure the material parameters and click Generate to construct a new lesson plan.
                     </p>
                 </div>
             </div>
@@ -38,24 +38,27 @@ export default function LessonPreview({ activity, mascotUrl, isScaffolded, onDow
                 {/* HEADER */}
                 <div style={{ marginBottom: '40px', borderBottom: '1px solid #e4e4e7', paddingBottom: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                        <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <h1 style={{ margin: 0, fontSize: '2rem', letterSpacing: '-0.03em' }}>{activity.title}</h1>
+                        <div style={{ flex: 1, paddingRight: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', width: '100%', gap: '20px' }}>
+                                <h1 style={{ margin: 0, fontSize: '2rem', letterSpacing: '-0.03em', lineHeight: '1.2' }}>{activity.title}</h1>
 
                                 <button onClick={onDownload} className="download-btn" style={{
-                                    background: 'transparent',
+                                    background: 'white',
                                     border: '1px solid #e4e4e7',
                                     color: '#09090b',
-                                    padding: '6px 10px',
-                                    borderRadius: '6px',
+                                    padding: '8px 12px',
+                                    borderRadius: '8px',
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '6px',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 500
+                                    gap: '8px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 500,
+                                    flexShrink: 0,
+                                    boxShadow: 'var(--shadow-sm)',
+                                    marginTop: '4px'
                                 }} title="Export as PDF">
-                                    <Download size={14} /> <span>PDF</span>
+                                    <Download size={16} /> <span>PDF</span>
                                 </button>
                             </div>
 
@@ -65,7 +68,7 @@ export default function LessonPreview({ activity, mascotUrl, isScaffolded, onDow
                             </div>
                         </div>
                         {mascotUrl && (
-                            <img src={mascotUrl} alt="Lesson Mascot" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', filter: 'grayscale(100%)' }} />
+                            <img src={mascotUrl} alt="Material Mascot" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', filter: 'grayscale(100%)' }} />
                         )}
                     </div>
                 </div>
@@ -88,9 +91,9 @@ export default function LessonPreview({ activity, mascotUrl, isScaffolded, onDow
                                     </span>
                                 </div>
 
-                                <div style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '12px' }}>
-                                    <span style={{ color: '#d4d4d8', marginRight: '12px' }}>{i + 1}</span>
-                                    {q.question_text}
+                                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'flex-start' }}>
+                                    <span style={{ color: '#d4d4d8', fontSize: '1rem', fontWeight: '600', flexShrink: 0, marginTop: '2px' }}>{i + 1}</span>
+                                    <span style={{ fontSize: '1.1rem', fontWeight: '500', lineHeight: '1.5', color: '#18181b' }}>{q.question_text}</span>
                                 </div>
 
                                 <div style={{ paddingLeft: '24px' }}>

@@ -41,7 +41,9 @@
   --cf-text-muted: var(--indigo-300);
   --cf-border: var(--indigo-800);
   --cf-input-bg: var(--indigo-900);
+  --cf-input-bg: var(--indigo-900);
   --cf-accent: var(--indigo-400);
+  --accent-soft: rgba(99, 102, 241, 0.15);
 
   /* PREVIEW PANEL: LIGHT THEME (Zinc-50/White) */
   --pv-bg: var(--zinc-50);
@@ -100,6 +102,26 @@ h5,
 h6 {
   font-family: var(--font-heading);
   margin: 0;
+}
+
+/* --- SCROLLBAR --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--zinc-900);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--zinc-500);
+  border-radius: 4px;
+  border: 2px solid var(--zinc-900);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--zinc-400);
 }
 
 /* --- LAYOUT --- */

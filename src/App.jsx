@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Sidebar from './components/Sidebar';
 import ConfigPanel from './components/ConfigPanel';
-import LessonPreview from './components/LessonPreview';
+import MaterialPreview from './components/MaterialPreview';
 import { generatePDF } from './utils/pdfGenerator';
 
 export default function App() {
@@ -31,10 +31,10 @@ export default function App() {
   // --- PERSISTENCE ---
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('lesson_history') || '[]');
+      const saved = JSON.parse(localStorage.getItem('material_history') || '[]');
       if (Array.isArray(saved)) setHistory(saved);
     } catch (e) {
-      localStorage.setItem('lesson_history', '[]');
+      localStorage.setItem('material_history', '[]');
     }
   }, []);
 
@@ -52,11 +52,11 @@ export default function App() {
     };
     const updated = [newEntry, ...history];
     setHistory(updated);
-    localStorage.setItem('lesson_history', JSON.stringify(updated));
+    localStorage.setItem('material_history', JSON.stringify(updated));
   };
 
   const loadFromHistory = (item) => {
-    if (!item || !item.student_worksheet) return alert("Invalid saved lesson.");
+    if (!item || !item.student_worksheet) return alert("Invalid saved material.");
     setActivity(item);
     if (item.visuals) setMascotUrl(item.visuals.mascotUrl);
     if (item.meta) {
@@ -66,10 +66,10 @@ export default function App() {
   };
 
   const clearHistory = () => {
-    if (confirm("Clear all saved lessons?")) {
+    if (confirm("Clear all saved materials?")) {
       setHistory([]);
       setActivity(null);
-      localStorage.setItem('lesson_history', '[]');
+      localStorage.setItem('material_history', '[]');
     }
   };
 
@@ -100,7 +100,7 @@ export default function App() {
       const scaffoldPrompt = isScaffolded ? "SCAFFOLDING: ON. Hints, Multiple Choice." : "SCAFFOLDING: OFF.";
 
       const prompt = `
-        You are "arc", an advanced Lesson Architect AI.
+        You are "arc", an advanced Material Architect AI.
         TEXT: "${transcript}"
         CONFIG: ${typePrompt} | Level: ${cefrLevel} | Audience: ${audience} | ${scaffoldPrompt}
         
@@ -167,7 +167,7 @@ export default function App() {
           loading={loading} onGenerate={handleGenerate}
         />
 
-        <LessonPreview
+        <MaterialPreview
           activity={activity}
           mascotUrl={mascotUrl}
           isScaffolded={isScaffolded}

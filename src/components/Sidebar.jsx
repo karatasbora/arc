@@ -55,11 +55,7 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
                 ))}
             </div>
 
-            <button onClick={clearHistory} style={{
-                marginTop: 'auto', background: 'none', border: 'none',
-                color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem',
-                display: 'flex', gap: '8px', alignItems: 'center', opacity: 0.8
-            }}>
+            <button onClick={clearHistory} className="btn-clear-history">
                 <Trash2 size={14} /> Clear History
             </button>
         </aside>

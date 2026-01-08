@@ -143,6 +143,29 @@ h6 {
   color: var(--sb-text-main);
 }
 
+.btn-clear-history {
+  margin-top: auto;
+  background: none;
+  border: none;
+  color: #f87171;
+  /* Red-400 for better dark mode contrast */
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  transition: opacity 0.2s;
+  font-family: inherit;
+}
+
+.btn-clear-history:hover {
+  text-decoration: underline;
+  opacity: 1;
+  color: #fca5a5;
+  /* Red-300 on hover */
+}
+
 .brand {
   display: flex;
   align-items: center;

@@ -58,6 +58,11 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
             <button onClick={clearHistory} className="btn-clear-history">
                 <Trash2 size={14} /> Clear History
             </button>
+
+            <div className="sidebar-footer">
+                <img src={`${baseUrl}bora-logo.svg`} alt="Bora Karataş" className="dev-logo" />
+                <span className="dev-name">Bora Karataş</span>
+            </div>
         </aside>
     );
 }

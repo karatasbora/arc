@@ -484,3 +484,35 @@ select.input-field {
   align-items: center;
   justify-content: center;
 }
+
+/* --- SIDEBAR FOOTER --- */
+.sidebar-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sb-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--sb-text-muted);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.sidebar-footer:hover {
+  opacity: 1;
+}
+
+.dev-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: #e4e4e7;
+  /* Zinc-200 for softer contrast than pure white */
+  padding: 2px;
+}
+
+.dev-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--font-brand);
+}

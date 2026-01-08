@@ -17,9 +17,14 @@
   --indigo-50: #eef2ff;
   --indigo-100: #e0e7ff;
   --indigo-200: #c7d2fe;
+  --indigo-300: #a5b4fc;
+  --indigo-400: #818cf8;
   --indigo-500: #6366f1;
   --indigo-600: #4f46e5;
-  --indigo-900: #1e1b4b;
+  --indigo-700: #4338ca;
+  --indigo-800: #3730a3;
+  --indigo-900: #312e81;
+  --indigo-950: #1e1b4b;
 
   /* --- THEME SCOPES --- */
 
@@ -30,15 +35,13 @@
   --sb-border: var(--zinc-800);
   --sb-hover: var(--zinc-900);
 
-  /* CONFIG PANEL: ACCENT THEME (Indigo-50) */
-  --cf-bg: var(--indigo-50);
-  --cf-text-main: var(--zinc-900);
-  /* Dark text for contrast */
-  --cf-text-muted: var(--indigo-900);
-  /* Tinted muted text */
-  --cf-border: var(--indigo-200);
-  --cf-input-bg: #ffffff;
-  --cf-accent: var(--indigo-500);
+  /* CONFIG PANEL: ACCENT THEME (Deep Indigo) */
+  --cf-bg: var(--indigo-950);
+  --cf-text-main: var(--indigo-50);
+  --cf-text-muted: var(--indigo-300);
+  --cf-border: var(--indigo-800);
+  --cf-input-bg: var(--indigo-900);
+  --cf-accent: var(--indigo-400);
 
   /* PREVIEW PANEL: LIGHT THEME (Zinc-50/White) */
   --pv-bg: var(--zinc-50);

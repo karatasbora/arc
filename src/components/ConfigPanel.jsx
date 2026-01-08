@@ -16,8 +16,8 @@ export default function ConfigPanel({
     return (
         <div className="editor-panel">
             <div className="panel-header">
-                <div style={{ background: 'white', padding: '8px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                    <Command size={20} className="text-zinc-900" />
+                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
+                    <Command size={20} className="text-indigo-100" color="var(--indigo-100)" />
                 </div>
                 <div>
                     <h2 className="panel-title">Configuration</h2>

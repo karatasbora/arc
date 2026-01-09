@@ -11,13 +11,6 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
                 <img
                     src={`${baseUrl}arc.svg`}
                     alt="arc"
-                    style={{
-                        width: '32px',
-                        height: '32px',
-                        background: '#1e1b4b',
-                        padding: '6px',
-                        borderRadius: '6px'
-                    }}
                 />
                 <span>arc</span>
             </div>

@@ -16,14 +16,14 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
     if (!activity) {
         return (
             <div className="preview-panel">
-                <div className="flex-column-center" style={{ height: '100%', opacity: 0.6, color: 'var(--zinc-400)' }}>
+                <div className="flex-column-center" style={{ height: '100%', opacity: 0.6, color: 'var(--slate-400)' }}>
                     <div className="flex-column-center shadow-soft" style={{
                         background: 'white', padding: '30px', borderRadius: '50%',
                         marginBottom: '20px', boxShadow: 'var(--shadow-md)'
                     }}>
-                        <Palette size={48} strokeWidth={1} color="var(--zinc-900)" />
+                        <Palette size={48} strokeWidth={1} color="var(--slate-900)" />
                     </div>
-                    <h3 style={{ fontSize: '1.2rem', color: 'var(--zinc-900)', marginBottom: '8px', fontWeight: 600 }}>Start Your Blueprint</h3>
+                    <h3 style={{ fontSize: '1.2rem', color: 'var(--slate-900)', marginBottom: '8px', fontWeight: 600 }}>Start Your Blueprint</h3>
                     <p style={{ maxWidth: '300px', textAlign: 'center', fontSize: '0.9rem' }}>
                         Configure the material parameters and click Generate to construct a new material plan.
                     </p>
@@ -36,7 +36,7 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
         <div className="preview-panel">
             <div className="paper">
                 {/* HEADER */}
-                <div style={{ marginBottom: '40px', borderBottom: '1px solid #e4e4e7', paddingBottom: '20px' }}>
+                <div style={{ marginBottom: '40px', borderBottom: '1px solid var(--slate-200)', paddingBottom: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                         <div style={{ flex: 1, paddingRight: '20px' }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', width: '100%', gap: '20px' }}>
@@ -44,8 +44,8 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
 
                                 <button onClick={onDownload} className="download-btn" style={{
                                     background: 'white',
-                                    border: '1px solid #e4e4e7',
-                                    color: '#09090b',
+                                    border: '1px solid var(--slate-200)',
+                                    color: 'var(--slate-950)',
                                     padding: '8px 12px',
                                     borderRadius: '8px',
                                     cursor: 'pointer',
@@ -62,9 +62,9 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                                 </button>
                             </div>
 
-                            <div style={{ marginTop: '10px', display: 'flex', gap: '10px', color: '#71717a', fontSize: '0.8rem', fontWeight: 600 }}>
-                                <span style={{ border: '1px solid #e4e4e7', padding: '2px 8px', borderRadius: '4px' }}>{activity.meta?.level}</span>
-                                <span style={{ border: '1px solid #e4e4e7', padding: '2px 8px', borderRadius: '4px' }}>{activity.meta?.type?.toUpperCase()}</span>
+                            <div style={{ marginTop: '10px', display: 'flex', gap: '10px', color: 'var(--slate-500)', fontSize: '0.8rem', fontWeight: 600 }}>
+                                <span style={{ border: '1px solid var(--slate-200)', padding: '2px 8px', borderRadius: '4px' }}>{activity.meta?.level}</span>
+                                <span style={{ border: '1px solid var(--slate-200)', padding: '2px 8px', borderRadius: '4px' }}>{activity.meta?.type?.toUpperCase()}</span>
                             </div>
                         </div>
                         {mascotUrl && (
@@ -75,7 +75,7 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
 
                 {/* INSTRUCTIONS */}
                 <div style={{ marginBottom: '30px' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#a1a1aa', marginBottom: '8px', textTransform: 'uppercase' }}>Instructions</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--slate-400)', marginBottom: '8px', textTransform: 'uppercase' }}>Instructions</div>
                     <div style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{activity.student_worksheet?.instructions}</div>
                 </div>
 
@@ -92,8 +92,8 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'flex-start' }}>
-                                    <span style={{ color: '#d4d4d8', fontSize: '1rem', fontWeight: '600', flexShrink: 0, marginTop: '2px' }}>{i + 1}</span>
-                                    <span style={{ fontSize: '1.1rem', fontWeight: '500', lineHeight: '1.5', color: '#18181b' }}>{q.question_text}</span>
+                                    <span style={{ color: 'var(--slate-300)', fontSize: '1rem', fontWeight: '600', flexShrink: 0, marginTop: '2px' }}>{i + 1}</span>
+                                    <span style={{ fontSize: '1.1rem', fontWeight: '500', lineHeight: '1.5', color: 'var(--slate-900)' }}>{q.question_text}</span>
                                 </div>
 
                                 <div style={{ paddingLeft: '24px' }}>
@@ -101,16 +101,16 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
                                             {q.options.map(opt => (
                                                 <div key={opt} style={{
-                                                    padding: '8px 12px', border: '1px solid #f4f4f5', borderRadius: '6px',
-                                                    fontSize: '0.9rem', color: '#52525b', display: 'flex', gap: '12px', alignItems: 'center'
+                                                    padding: '8px 12px', border: '1px solid var(--slate-100)', borderRadius: '6px',
+                                                    fontSize: '0.9rem', color: 'var(--slate-600)', display: 'flex', gap: '12px', alignItems: 'center'
                                                 }}>
-                                                    <div style={{ width: '14px', height: '14px', border: '1px solid #d4d4d8', borderRadius: '50%' }}></div>
+                                                    <div style={{ width: '14px', height: '14px', border: '1px solid var(--slate-300)', borderRadius: '50%' }}></div>
                                                     {opt}
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div style={{ borderBottom: '1px solid #f4f4f5', height: '30px', width: '100%' }}></div>
+                                        <div style={{ borderBottom: '1px solid var(--slate-100)', height: '30px', width: '100%' }}></div>
                                     )}
                                 </div>
 

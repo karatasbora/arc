@@ -17,7 +17,7 @@ export default function ConfigPanel({
         <div className="editor-panel">
             <div className="panel-header">
                 <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
-                    <Command size={20} className="text-indigo-100" color="var(--indigo-100)" />
+                    <Command size={20} color="var(--cyan-100)" />
                 </div>
                 <div>
                     <h2 className="panel-title">Configuration</h2>
@@ -101,7 +101,7 @@ export default function ConfigPanel({
                         onClick={() => setIsScaffolded(!isScaffolded)}
                     >
                         <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>Scaffolding</span>
-                        {isScaffolded ? <ToggleRight size={20} className="text-indigo-500" style={{ color: 'var(--accent)' }} /> : <ToggleLeft size={20} color="#d4d4d8" />}
+                        {isScaffolded ? <ToggleRight size={20} style={{ color: 'var(--cf-accent)' }} /> : <ToggleLeft size={20} color="var(--cf-text-muted)" />}
                     </div>
                 </div>
             </div>

@@ -17,7 +17,7 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
 
             <div className="input-wrapper" style={{ marginBottom: '2rem' }}>
                 <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--sb-text-muted)' }}>
-                    <Key size={12} className="text-zinc-400" /> API Key
+                    <Key size={12} style={{ color: 'var(--sb-text-muted)' }} /> API Key
                 </label>
                 <input
                     className="input-field"

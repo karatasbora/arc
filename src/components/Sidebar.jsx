@@ -59,7 +59,7 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
             </button>
 
             <a
-                href="https://karatasbora.github.io/resume"
+                href="https://karatasbora.github.io/me"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="sidebar-footer"

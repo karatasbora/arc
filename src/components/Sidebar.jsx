@@ -9,10 +9,10 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
         <aside className="sidebar">
             <div className="brand">
                 <img
-                    src={`${baseUrl}arc.svg`}
+                    src={`${baseUrl}arc-emerge.svg`}
                     alt="arc"
+                    style={{ height: '32px' }}
                 />
-                <span>arc</span>
             </div>
 
             <div className="input-wrapper" style={{ marginBottom: '2rem' }}>

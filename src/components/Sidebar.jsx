@@ -11,7 +11,7 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
                 <img
                     src={`${baseUrl}arc-emerge.svg`}
                     alt="arc"
-                    style={{ height: '32px' }}
+                    style={{ height: '38px' }}
                 />
             </div>
 

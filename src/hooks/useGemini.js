@@ -76,6 +76,42 @@ export function useGemini() {
         setActivity(null);
         setMascotUrl(null);
 
+        // DEBUG MODE CHECK
+        if (apiKey.trim().toUpperCase() === 'DEBUG') {
+            try {
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                const mockData = {
+                    title: "Debug Mode: Quantum Physics",
+                    meta: { level: cefrLevel, type: activityType, duration: "20m" },
+                    visual_theme: { primary_color: "#14b8a6", mascot_prompt: "A futuristic robot scientist" },
+                    student_worksheet: {
+                        instructions: "Read the following text and answer the questions. (DEBUG MODE)",
+                        questions: [
+                            { question_text: "What is a quantum?", options: ["A small packet of energy", "A type of fruit"], hint: "Think small." },
+                            { question_text: "Is light a particle or a wave?", options: ["Particle", "Wave", "Both"], hint: "It's tricky!" }
+                        ],
+                        glossary: [{ word: "Quantum", definition: "The smallest amount of a physical quantity." }]
+                    }
+                };
+
+                setActivity(mockData);
+
+                // Use a reliable placeholder or the user's pref
+                const mockMascotUrl = "https://placehold.co/400x400/14b8a6/white?text=DEBUG+Mascot";
+                setMascotUrl(mockMascotUrl);
+
+                addToHistory(mockData, { mascotUrl: mockMascotUrl, themeColors: { primary: '#14b8a6' } });
+
+            } catch (err) {
+                alert("Debug Error: " + err.message);
+            } finally {
+                setLoading(false);
+            }
+            return; // EXIT FUNCTION EARLY
+        }
+
         try {
             const genAI = new GoogleGenerativeAI(apiKey);
             const genModel = genAI.getGenerativeModel({ model: model });

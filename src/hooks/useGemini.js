@@ -58,6 +58,16 @@ export function useGemini() {
             setCefrLevel(item.meta.level || 'B1');
             setActivityType(item.meta.type || 'comprehension');
         }
+        // Ensure UIDs exist
+        if (item.student_worksheet?.questions && item.student_worksheet.questions.some(q => !q.uid)) {
+            const fixedQuestions = item.student_worksheet.questions.map(q => ({
+                ...q, uid: q.uid || Math.random().toString(36).substr(2, 9)
+            }));
+            setActivity({
+                ...item,
+                student_worksheet: { ...item.student_worksheet, questions: fixedQuestions }
+            });
+        }
     };
 
     const clearHistory = () => {
@@ -97,6 +107,9 @@ export function useGemini() {
 
                 // ID injection for Debug Mode
                 mockData.id = Date.now();
+                mockData.student_worksheet.questions = mockData.student_worksheet.questions.map(q => ({
+                    ...q, uid: Math.random().toString(36).substr(2, 9)
+                }));
                 setActivity(mockData);
 
                 // Use a reliable placeholder or the user's pref
@@ -162,6 +175,11 @@ export function useGemini() {
 
             // ID injection for Real Mode
             data.id = Date.now();
+            if (data.student_worksheet?.questions) {
+                data.student_worksheet.questions = data.student_worksheet.questions.map(q => ({
+                    ...q, uid: Math.random().toString(36).substr(2, 9)
+                }));
+            }
             setActivity(data);
 
             const mascotBase = mascotPref || (data.visual_theme?.mascot_prompt || "abstract concept");

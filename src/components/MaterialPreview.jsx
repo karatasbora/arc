@@ -212,6 +212,23 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
     }
 
     const questions = activity.student_worksheet?.questions || [];
+    const hasIds = questions.every(q => q.uid);
+
+    // Prevent crash if IDs are not yet assigned
+    if (!hasIds) {
+        return (
+            <div className="preview-panel">
+                <div className="flex-column-center" style={{ height: '100%' }}>
+                    <div className="animate-spin" style={{
+                        width: '24px', height: '24px',
+                        border: '2px solid var(--slate-200)',
+                        borderTopColor: 'var(--slate-600)',
+                        borderRadius: '50%'
+                    }}></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="preview-panel">

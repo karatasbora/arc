@@ -1,4 +1,3 @@
-import { jsPDF } from "jspdf";
 
 const getBase64FromUrl = async (url) => {
     try {
@@ -27,6 +26,7 @@ const getCategoryBadge = (text) => {
 
 export const generatePDF = async (activity, mascotUrl, isScaffolded) => {
     if (!activity) return;
+    const { jsPDF } = await import("jspdf");
     const doc = new jsPDF();
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();

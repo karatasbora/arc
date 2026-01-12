@@ -16,20 +16,21 @@ export default function ConfigPanel({
     return (
         <div className="editor-panel">
             <div className="panel-header">
-                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
+                <div className="panel-icon">
                     <Command size={20} color="var(--cyan-100)" />
                 </div>
                 <div>
                     <h2 className="panel-title">Configuration</h2>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--cf-text-muted)' }}>Customize your material parameters</p>
+                    <p className="panel-subtitle">Customize your material parameters</p>
                 </div>
             </div>
 
             {/* Source Material */}
             <div className="config-section">
                 <div className="input-wrapper">
-                    <label className="input-label">Source Material / Topic</label>
+                    <label className="input-label" htmlFor="source-material">Source Material / Topic</label>
                     <textarea
+                        id="source-material"
                         className="input-field"
                         placeholder="Paste text or describe a topic (e.g., 'The history of the internet' or 'Quantum Physics for kids')..."
                         value={transcript}
@@ -45,8 +46,8 @@ export default function ConfigPanel({
 
                 <div className="grid-2">
                     <div className="input-wrapper">
-                        <label className="input-label">Model</label>
-                        <select className="input-field" value={model} onChange={e => setModel(e.target.value)}>
+                        <label className="input-label" htmlFor="model-select">Model</label>
+                        <select id="model-select" className="input-field" value={model} onChange={e => setModel(e.target.value)}>
                             <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                             <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
                             <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
@@ -54,8 +55,8 @@ export default function ConfigPanel({
                         </select>
                     </div>
                     <div className="input-wrapper">
-                        <label className="input-label">Focus</label>
-                        <select className="input-field" value={activityType} onChange={e => setActivityType(e.target.value)}>
+                        <label className="input-label" htmlFor="focus-select">Focus</label>
+                        <select id="focus-select" className="input-field" value={activityType} onChange={e => setActivityType(e.target.value)}>
                             <option value="comprehension">Comprehension</option>
                             <option value="vocabulary">Vocabulary</option>
                             <option value="grammar">Grammar</option>
@@ -66,14 +67,14 @@ export default function ConfigPanel({
 
                 <div className="grid-2">
                     <div className="input-wrapper">
-                        <label className="input-label">Level (CEFR)</label>
-                        <select className="input-field" value={cefrLevel} onChange={e => setCefrLevel(e.target.value)}>
+                        <label className="input-label" htmlFor="level-select">Level (CEFR)</label>
+                        <select id="level-select" className="input-field" value={cefrLevel} onChange={e => setCefrLevel(e.target.value)}>
                             <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option>
                         </select>
                     </div>
                     <div className="input-wrapper">
-                        <label className="input-label">Length</label>
-                        <select className="input-field" value={length} onChange={e => setLength(e.target.value)}>
+                        <label className="input-label" htmlFor="length-select">Length</label>
+                        <select id="length-select" className="input-field" value={length} onChange={e => setLength(e.target.value)}>
                             <option value="short">Short (5 Qs)</option>
                             <option value="medium">Medium (10 Qs)</option>
                             <option value="long">Long (15 Qs)</option>
@@ -85,10 +86,10 @@ export default function ConfigPanel({
             {/* Audience Settings */}
             <div className="config-section">
                 <div className="section-title"><Users size={14} /> <span>Audience</span></div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '12px', alignItems: 'end' }}>
+                <div className="audience-grid">
                     <div className="input-wrapper">
-                        <label className="input-label">Target Group</label>
-                        <select className="input-field" value={audience} onChange={e => setAudience(e.target.value)}>
+                        <label className="input-label" htmlFor="audience-select">Target Group</label>
+                        <select id="audience-select" className="input-field" value={audience} onChange={e => setAudience(e.target.value)}>
                             <option value="kids">Kids (Playful)</option>
                             <option value="teens">Teens (Relatable)</option>
                             <option value="adults">Adults (Standard)</option>
@@ -100,7 +101,7 @@ export default function ConfigPanel({
                         className={`toggle-card ${isScaffolded ? 'active' : ''}`}
                         onClick={() => setIsScaffolded(!isScaffolded)}
                     >
-                        <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>Scaffolding</span>
+                        <span className="scaffolding-label">Scaffolding</span>
                         {isScaffolded ? <ToggleRight size={20} style={{ color: 'var(--cf-accent)' }} /> : <ToggleLeft size={20} color="var(--cf-text-muted)" />}
                     </div>
                 </div>
@@ -111,8 +112,8 @@ export default function ConfigPanel({
                 <div className="section-title"><Palette size={14} /> <span>Visual Design</span></div>
                 <div className="grid-2">
                     <div className="input-wrapper">
-                        <label className="input-label">Art Style</label>
-                        <select className="input-field" value={visualStyle} onChange={e => setVisualStyle(e.target.value)}>
+                        <label className="input-label" htmlFor="visual-style-select">Art Style</label>
+                        <select id="visual-style-select" className="input-field" value={visualStyle} onChange={e => setVisualStyle(e.target.value)}>
                             <option value="minimal vector line art">Minimal Line Art</option>
                             <option value="clay 3d render style">Clay 3D</option>
                             <option value="watercolor painting style">Watercolor</option>
@@ -122,8 +123,9 @@ export default function ConfigPanel({
                         </select>
                     </div>
                     <div className="input-wrapper">
-                        <label className="input-label">Mascot Focus</label>
+                        <label className="input-label" htmlFor="mascot-input">Mascot Focus</label>
                         <input
+                            id="mascot-input"
                             type="text"
                             className="input-field"
                             placeholder="e.g. Robot"
@@ -134,7 +136,7 @@ export default function ConfigPanel({
                 </div>
             </div>
 
-            <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+            <div className="action-footer">
                 <button
                     className="btn-primary"
                     onClick={onGenerate}

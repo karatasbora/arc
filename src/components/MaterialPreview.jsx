@@ -46,7 +46,7 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                 }}>
                     <div style={{
                         width: '50px', height: '50px', borderRadius: '50%',
-                        border: '4px solid #3f3f46', background: '#362f2d' // Coffee liquid color
+                        border: '4px solid #3f3f46', background: '#451a03' // Deep Amber Coffee
                     }}></div>
                 </div>
             </div>
@@ -57,9 +57,9 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
 
             <div className="accessory" style={{ top: '200px', left: 'calc(50% - 520px)', transform: 'rotate(5deg)' }}>
                 <div style={{
-                    width: '120px', height: '8px', background: '#f59e0b', borderRadius: '4px',
+                    width: '120px', height: '8px', background: 'var(--amber-600)', borderRadius: '4px',
                     boxShadow: '0 2px 3px rgba(0,0,0,0.2)'
-                }}></div> {/* Pencil */}
+                }}></div> {/* Pencil - Human Accent */}
             </div>
 
             <div className="paper">

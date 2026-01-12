@@ -448,8 +448,12 @@ select.input-field {
   background-color: var(--slate-900);
   /* Modern dark base */
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4)),
-    repeating-linear-gradient(45deg, var(--slate-800) 0px, var(--slate-800) 1px, var(--amber-950) 1px, var(--amber-950) 4px);
+    radial-gradient(circle at 60% 40%, rgba(255, 255, 255, 0.03), transparent 60%),
+    /* Subtle lighting */
+    repeating-linear-gradient(90deg, var(--slate-800) 0px, var(--slate-800) 1px, transparent 1px, transparent 3px),
+    /* Fine vertical texture */
+    repeating-linear-gradient(45deg, rgba(69, 26, 3, 0.1) 0px, rgba(69, 26, 3, 0.1) 2px, transparent 2px, transparent 12px);
+  /* Organic amber angling */
 
   padding: 4rem 2rem;
   overflow-y: auto;

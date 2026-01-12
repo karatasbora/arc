@@ -23,7 +23,8 @@ export default function App() {
     mascotUrl,
     loadFromHistory,
     clearHistory,
-    handleGenerate
+    handleGenerate,
+    setActivity
   } = useGemini();
 
   return (

@@ -356,6 +356,58 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                     </DndContext>
                 </div>
 
+                {/* GLOSSARY */}
+                {activity.student_worksheet?.glossary && activity.student_worksheet.glossary.length > 0 && (
+                    <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid var(--slate-100)' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--slate-400)', marginBottom: '15px', textTransform: 'uppercase' }}>Key Vocabulary</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                            {activity.student_worksheet.glossary.map((item, i) => (
+                                <div key={i} style={{
+                                    background: 'var(--slate-50)', padding: '15px', borderRadius: '8px',
+                                    border: '1px solid var(--slate-100)'
+                                }}>
+                                    <input
+                                        type="text"
+                                        value={item.word || ''}
+                                        onChange={(e) => {
+                                            const newGlossary = [...activity.student_worksheet.glossary];
+                                            newGlossary[i] = { ...newGlossary[i], word: e.target.value };
+                                            onUpdate({
+                                                ...activity,
+                                                student_worksheet: { ...activity.student_worksheet, glossary: newGlossary }
+                                            });
+                                        }}
+                                        style={{
+                                            fontWeight: '700', fontSize: '0.95rem', color: 'var(--slate-900)',
+                                            marginBottom: '4px', width: '100%', background: 'transparent',
+                                            border: 'none', outline: 'none'
+                                        }}
+                                        placeholder="Word"
+                                    />
+                                    <textarea
+                                        rows={2}
+                                        value={item.definition || ''}
+                                        onChange={(e) => {
+                                            const newGlossary = [...activity.student_worksheet.glossary];
+                                            newGlossary[i] = { ...newGlossary[i], definition: e.target.value };
+                                            onUpdate({
+                                                ...activity,
+                                                student_worksheet: { ...activity.student_worksheet, glossary: newGlossary }
+                                            });
+                                        }}
+                                        style={{
+                                            fontSize: '0.9rem', color: 'var(--slate-600)', lineHeight: '1.4',
+                                            width: '100%', background: 'transparent', border: 'none',
+                                            outline: 'none', resize: 'none', fontFamily: 'inherit'
+                                        }}
+                                        placeholder="Definition"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
 

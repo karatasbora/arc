@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Palette, Download, HelpCircle, MapPin, User, Utensils, Clock, AlertTriangle, GripVertical, Trash2 } from 'lucide-react';
+import { Palette, Download, HelpCircle, MapPin, User, Utensils, Clock, AlertTriangle, GripVertical, Trash2, Save } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -122,7 +122,7 @@ function SortableQuestion({ id, q, index, isScaffolded, onEdit, onDelete }) {
     );
 }
 
-export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onDownload, onUpdate }) {
+export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onDownload, onUpdate, onSave }) {
 
     // ENSURE STABLE IDs
     useEffect(() => {
@@ -192,6 +192,18 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
         }
     };
 
+    const handleSave = () => {
+        if (onSave) {
+            onSave(activity);
+            const btn = document.getElementById('save-btn');
+            if (btn) {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = 'Saved!';
+                setTimeout(() => btn.innerHTML = originalText, 2000);
+            }
+        }
+    };
+
     if (!activity) {
         return (
             <div className="preview-panel">
@@ -250,6 +262,25 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                                     }}
                                     className="editable-title"
                                 />
+
+                                <button id="save-btn" onClick={handleSave} className="download-btn" style={{
+                                    background: 'var(--slate-800)',
+                                    border: '1px solid var(--slate-900)',
+                                    color: 'white',
+                                    padding: '8px 12px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 500,
+                                    flexShrink: 0,
+                                    boxShadow: 'var(--shadow-sm)',
+                                    marginTop: '4px'
+                                }} title="Save Changes">
+                                    <Save size={16} /> <span>Save</span>
+                                </button>
 
                                 <button onClick={onDownload} className="download-btn" style={{
                                     background: 'white',

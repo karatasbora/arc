@@ -50,6 +50,15 @@ export function useGemini() {
         localStorage.setItem('material_history', JSON.stringify(updated));
     };
 
+    const updateHistoryItem = (updatedActivity) => {
+        const updatedHistory = history.map(item =>
+            item.id === updatedActivity.id ? { ...item, ...updatedActivity } : item
+        );
+        setHistory(updatedHistory);
+        localStorage.setItem('material_history', JSON.stringify(updatedHistory));
+        setActivity(updatedActivity); // Ensure current view triggers re-render if needed
+    };
+
     const loadFromHistory = (item) => {
         if (!item || !item.student_worksheet) return alert("Invalid saved material.");
         setActivity(item);
@@ -214,6 +223,8 @@ export function useGemini() {
         loadFromHistory,
         clearHistory,
         handleGenerate,
-        setActivity // Exposed for Edit Mode
+        handleGenerate,
+        setActivity, // Exposed for Edit Mode
+        updateHistoryItem // Exposed for Save
     };
 }

@@ -24,7 +24,8 @@ export default function App() {
     loadFromHistory,
     clearHistory,
     handleGenerate,
-    setActivity
+    setActivity,
+    updateHistoryItem
   } = useGemini();
 
   return (
@@ -57,6 +58,7 @@ export default function App() {
           isScaffolded={isScaffolded}
           onDownload={() => generatePDF(activity, mascotUrl, isScaffolded)}
           onUpdate={setActivity}
+          onSave={updateHistoryItem}
         />
       </main>
 

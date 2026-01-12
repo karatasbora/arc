@@ -69,13 +69,13 @@
   --accent-soft: rgba(34, 211, 238, 0.15);
   /* Cyan-400 at 15% */
 
-  /* PREVIEW PANEL: WORKDESK THEME */
-  --pv-bg: #e2e8f0;
-  /* Fallback */
-  /* We will use a gradient in the class definition for the wood effect */
+  /* PREVIEW PANEL: AMBER ACCENT THEME */
+  --pv-bg: var(--slate-50);
+  /* Clean Slate background */
   --pv-paper: #ffffff;
   --pv-text: var(--slate-900);
-  --pv-accent: var(--amber-700);
+  --pv-accent: var(--amber-600);
+  /* Primary action color in preview */
 
   /* APP SHELL BG */
   --bg-app: var(--cf-bg);
@@ -89,11 +89,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 0, 0, 0.05);
-
-  /* Desk Specifics - Human Accent */
-  --wood-grain: repeating-linear-gradient(45deg, var(--slate-800) 0px, var(--slate-800) 1px, var(--amber-950) 1px, var(--amber-950) 4px);
-  --desk-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+  --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
   /* Font Families */
   --font-ui: 'IBM Plex Sans', sans-serif;
@@ -176,7 +172,6 @@ h6 {
   padding: 1.5rem;
   font-size: 0.9rem;
   color: var(--sb-text-main);
-  z-index: 10;
 }
 
 .btn-clear-history {
@@ -271,8 +266,6 @@ h6 {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
-  /* Slight shadow over preview */
 }
 
 .panel-header {
@@ -443,81 +436,29 @@ select.input-field {
   cursor: wait;
 }
 
-/* --- PREVIEW PANEL (Workdesk Theme - Human Accent) --- */
+/* --- PREVIEW PANEL (Light Theme) --- */
 .preview-panel {
-  background-color: var(--slate-900);
-  /* Modern dark base */
-  background-image:
-    radial-gradient(circle at 60% 40%, rgba(255, 255, 255, 0.03), transparent 60%),
-    /* Subtle lighting */
-    repeating-linear-gradient(90deg, var(--slate-800) 0px, var(--slate-800) 1px, transparent 1px, transparent 3px),
-    /* Fine vertical texture */
-    repeating-linear-gradient(45deg, rgba(69, 26, 3, 0.1) 0px, rgba(69, 26, 3, 0.1) 2px, transparent 2px, transparent 12px);
-  /* Organic amber angling */
-
+  background-color: var(--pv-bg);
+  background-image: radial-gradient(var(--amber-200) 1px, transparent 1px);
+  background-size: 24px 24px;
+  /* Dot grid background for workdesk look */
   padding: 4rem 2rem;
   overflow-y: auto;
   display: flex;
   justify-content: center;
-  position: relative;
-  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.6);
-  /* Room ambient occlusion */
 }
 
 .paper {
-  background: #fdfbf7;
-  /* Milkier white */
+  background: white;
   width: 100%;
   max-width: 800px;
   min-height: 1000px;
   padding: 60px 70px;
-
-  /* Deep shadow for floating desk effect */
-  box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.05),
-    /* Paper texture */
-    0 10px 30px -5px rgba(0, 0, 0, 0.3),
-    /* Main lift */
-    0 30px 60px -10px rgba(0, 0, 0, 0.4);
-  /* Ambient shadow */
-
-  border-radius: 2px;
+  border: 1px solid var(--slate-200);
+  box-shadow: var(--shadow-float);
+  border-radius: 4px;
+  /* Real paper isn't very rounded */
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  transform: rotate(-0.5deg);
-  /* Slight organic tilt */
-  z-index: 5;
-}
-
-/* Paper punched holes (visual flair) */
-.paper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 40px;
-  bottom: 0;
-  width: 1px;
-  border-left: 2px dashed #f1e5d6;
-}
-
-/* Desk Accessories */
-.desk-mat {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 900px;
-  height: 1100px;
-  background: #1f1d1c;
-  border-radius: 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  z-index: 1;
-}
-
-.accessory {
-  position: absolute;
-  z-index: 6;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 }
 
 /* --- ANIMATIONS --- */

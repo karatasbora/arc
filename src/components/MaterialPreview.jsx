@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Download, HelpCircle, MapPin, User, Utensils, Clock, AlertTriangle, Glasses } from 'lucide-react';
+import { Palette, Download, HelpCircle, MapPin, User, Utensils, Clock, AlertTriangle } from 'lucide-react';
 
 // "SmartTags" Logic
 const getCategoryBadge = (text) => {
@@ -34,34 +34,6 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
 
     return (
         <div className="preview-panel">
-            {/* Desk Mat (dark leather pad effect under paper) */}
-            <div className="desk-mat"></div>
-
-            {/* Desk Accessories */}
-            <div className="accessory" style={{ top: '100px', left: 'calc(50% + 460px)', transform: 'rotate(15deg)' }}>
-                <div style={{
-                    background: '#27272a', width: '60px', height: '60px', borderRadius: '50%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)'
-                }}>
-                    <div style={{
-                        width: '50px', height: '50px', borderRadius: '50%',
-                        border: '4px solid #3f3f46', background: '#451a03' // Deep Amber Coffee
-                    }}></div>
-                </div>
-            </div>
-
-            <div className="accessory" style={{ bottom: '100px', left: 'calc(50% - 500px)', transform: 'rotate(-25deg)', opacity: 0.8 }}>
-                <Glasses size={64} color="#71717a" strokeWidth={1.5} />
-            </div>
-
-            <div className="accessory" style={{ top: '200px', left: 'calc(50% - 520px)', transform: 'rotate(5deg)' }}>
-                <div style={{
-                    width: '120px', height: '8px', background: 'var(--amber-600)', borderRadius: '4px',
-                    boxShadow: '0 2px 3px rgba(0,0,0,0.2)'
-                }}></div> {/* Pencil - Human Accent */}
-            </div>
-
             <div className="paper">
                 {/* HEADER */}
                 <div style={{ marginBottom: '40px', borderBottom: '1px solid var(--slate-200)', paddingBottom: '20px' }}>

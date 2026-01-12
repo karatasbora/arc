@@ -195,6 +195,7 @@ export function useGemini() {
         mascotUrl,
         loadFromHistory,
         clearHistory,
-        handleGenerate
+        handleGenerate,
+        setActivity // Exposed for Edit Mode
     };
 }

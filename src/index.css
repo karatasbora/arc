@@ -601,3 +601,8 @@ select.input-field {
   margin-top: auto;
   padding-top: 1rem;
 }
+
+/* Sortable Item Hover */
+.sortable-item:hover .drag-controls {
+  opacity: 1 !important;
+}

@@ -55,6 +55,7 @@ export default function App() {
           mascotUrl={mascotUrl}
           isScaffolded={isScaffolded}
           onDownload={() => generatePDF(activity, mascotUrl, isScaffolded)}
+          onUpdate={setActivity}
         />
       </main>
 

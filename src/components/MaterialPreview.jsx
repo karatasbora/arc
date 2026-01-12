@@ -1,5 +1,8 @@
-import React from 'react';
-import { Palette, Download, HelpCircle, MapPin, User, Utensils, Clock, AlertTriangle } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Palette, Download, HelpCircle, MapPin, User, Utensils, Clock, AlertTriangle, GripVertical, Trash2 } from 'lucide-react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // "SmartTags" Logic
 const getCategoryBadge = (text) => {
@@ -12,7 +15,183 @@ const getCategoryBadge = (text) => {
     return { label: "detail", icon: <HelpCircle size={10} />, class: "badge-detail" };
 };
 
-export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onDownload }) {
+// Sortable Question Component
+function SortableQuestion({ id, q, index, isScaffolded, onEdit, onDelete }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        marginBottom: '30px',
+        position: 'relative',
+        opacity: isDragging ? 0.5 : 1,
+        touchAction: 'none' // Prevent scrolling while dragging on touch
+    };
+
+    const badge = getCategoryBadge(q.question_text);
+
+    return (
+        <div ref={setNodeRef} style={style} className="sortable-item">
+            {/* Controls */}
+            <div className="drag-controls" style={{
+                position: 'absolute', left: '-40px', top: '0', display: 'flex', flexDirection: 'column', gap: '8px',
+                opacity: 0.4, transition: 'opacity 0.2s', height: '100%'
+            }}>
+                <div {...attributes} {...listeners} style={{ cursor: 'grab', padding: '4px' }} title="Drag to reorder">
+                    <GripVertical size={20} />
+                </div>
+                <button onClick={() => onDelete(index)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px' }} title="Delete Question">
+                    <Trash2 size={18} color="#ef4444" />
+                </button>
+            </div>
+
+            {/* HEADER / BADGE */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span className={badge.class}>
+                    {badge.icon} {badge.label}
+                </span>
+            </div>
+
+            {/* QUESTION TEXT */}
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'flex-start' }}>
+                <span style={{ color: 'var(--slate-300)', fontSize: '1rem', fontWeight: '600', flexShrink: 0, marginTop: '8px' }}>{index + 1}</span>
+                <textarea
+                    rows={1}
+                    value={q.question_text || ''}
+                    onChange={(e) => onEdit(index, 'question_text', e.target.value)}
+                    placeholder="Enter question..."
+                    style={{
+                        fontSize: '1.1rem', fontWeight: '500', lineHeight: '1.5', color: 'var(--slate-900)',
+                        width: '100%', border: '1px solid transparent', background: 'transparent', padding: '6px', borderRadius: '6px',
+                        fontFamily: 'inherit', resize: 'none', overflow: 'hidden', minHeight: '38px'
+                    }}
+                    onFocus={(e) => { e.target.style.border = '1px solid var(--slate-300)'; e.target.style.background = 'white'; }}
+                    onBlur={(e) => { e.target.style.border = '1px solid transparent'; e.target.style.background = 'transparent'; }}
+                    className="editable-textarea"
+                />
+            </div>
+
+            {/* OPTIONS */}
+            <div style={{ paddingLeft: '24px' }}>
+                {q.options ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
+                        {q.options.map((opt, optIndex) => (
+                            <div key={optIndex} style={{
+                                padding: '6px 12px', border: '1px solid var(--slate-100)', borderRadius: '6px',
+                                fontSize: '0.9rem', color: 'var(--slate-600)', display: 'flex', gap: '12px', alignItems: 'center'
+                            }}>
+                                <div style={{ width: '14px', height: '14px', border: '1px solid var(--slate-300)', borderRadius: '50%', flexShrink: 0 }}></div>
+                                <input
+                                    type="text"
+                                    value={opt || ''}
+                                    onChange={(e) => {
+                                        const newOptions = [...q.options];
+                                        newOptions[optIndex] = e.target.value;
+                                        onEdit(index, 'options', newOptions);
+                                    }}
+                                    placeholder={`Option ${optIndex + 1}`}
+                                    style={{
+                                        width: '100%', border: 'none', background: 'transparent', outline: 'none', color: 'inherit',
+                                        fontSize: 'inherit', fontFamily: 'inherit'
+                                    }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ borderBottom: '1px solid var(--slate-100)', height: '30px', width: '100%' }}></div>
+                )}
+            </div>
+
+            {/* HINT */}
+            {q.hint && isScaffolded && (
+                <div style={{
+                    marginTop: '12px', marginLeft: '24px',
+                    color: '#d97706', fontSize: '0.8rem', display: 'flex', gap: '6px', alignItems: 'center'
+                }}>
+                    <AlertTriangle size={12} />
+                    <input
+                        type="text"
+                        value={q.hint || ''}
+                        onChange={(e) => onEdit(index, 'hint', e.target.value)}
+                        style={{ border: 'none', background: 'transparent', outline: 'none', color: '#d97706', fontStyle: 'italic', width: '100%' }}
+                    />
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onDownload, onUpdate }) {
+
+    // ENSURE STABLE IDs
+    useEffect(() => {
+        if (activity?.student_worksheet?.questions) {
+            const needsIds = activity.student_worksheet.questions.some(q => !q.uid);
+            if (needsIds) {
+                const newQuestions = activity.student_worksheet.questions.map(q => ({
+                    ...q,
+                    uid: q.uid || Math.random().toString(36).substr(2, 9)
+                }));
+                onUpdate({
+                    ...activity,
+                    student_worksheet: { ...activity.student_worksheet, questions: newQuestions }
+                });
+            }
+        }
+    }, [activity, onUpdate]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+        if (active.id !== over.id) {
+            // Find indexes based on UID
+            const oldIndex = activity.student_worksheet.questions.findIndex(q => q.uid === active.id);
+            const newIndex = activity.student_worksheet.questions.findIndex(q => q.uid === over.id);
+
+            const newQuestions = arrayMove(activity.student_worksheet.questions, oldIndex, newIndex);
+
+            onUpdate({
+                ...activity,
+                student_worksheet: { ...activity.student_worksheet, questions: newQuestions }
+            });
+        }
+    };
+
+    const handleQuestionEdit = (index, field, value) => {
+        const newQuestions = [...activity.student_worksheet.questions];
+        newQuestions[index] = { ...newQuestions[index], [field]: value };
+        onUpdate({
+            ...activity,
+            student_worksheet: { ...activity.student_worksheet, questions: newQuestions }
+        });
+    };
+
+    const handleDelete = (index) => {
+        if (confirm("Delete this question?")) {
+            const newQuestions = activity.student_worksheet.questions.filter((_, i) => i !== index);
+            onUpdate({
+                ...activity,
+                student_worksheet: { ...activity.student_worksheet, questions: newQuestions }
+            });
+        }
+    };
+
+    const handleMainEdit = (field, value) => {
+        if (field === 'instructions') {
+            onUpdate({
+                ...activity,
+                student_worksheet: { ...activity.student_worksheet, instructions: value }
+            });
+        } else if (field === 'title') {
+            onUpdate({ ...activity, title: value });
+        }
+    };
+
     if (!activity) {
         return (
             <div className="preview-panel">
@@ -32,6 +211,8 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
         );
     }
 
+    const questions = activity.student_worksheet?.questions || [];
+
     return (
         <div className="preview-panel">
             <div className="paper" key={activity.id}>
@@ -40,7 +221,18 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                         <div style={{ flex: 1, paddingRight: '20px' }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', width: '100%', gap: '20px' }}>
-                                <h1 style={{ margin: 0, fontSize: '2rem', letterSpacing: '-0.03em', lineHeight: '1.2' }}>{activity.title}</h1>
+                                {/* EDITABLE TITLE */}
+                                <input
+                                    type="text"
+                                    value={activity.title || ''}
+                                    onChange={(e) => handleMainEdit('title', e.target.value)}
+                                    style={{
+                                        margin: 0, fontSize: '2rem', letterSpacing: '-0.03em', lineHeight: '1.2',
+                                        width: '100%', border: 'none', background: 'transparent', fontWeight: 700,
+                                        fontFamily: 'inherit', outline: 'none'
+                                    }}
+                                    className="editable-title"
+                                />
 
                                 <button onClick={onDownload} className="download-btn" style={{
                                     background: 'white',
@@ -76,56 +268,44 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                 {/* INSTRUCTIONS */}
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--slate-400)', marginBottom: '8px', textTransform: 'uppercase' }}>Instructions</div>
-                    <div style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{activity.student_worksheet?.instructions}</div>
+                    <textarea
+                        value={activity.student_worksheet?.instructions || ''}
+                        onChange={(e) => handleMainEdit('instructions', e.target.value)}
+                        style={{
+                            fontSize: '0.95rem', lineHeight: '1.6', width: '100%',
+                            border: '1px solid transparent', background: 'transparent', borderRadius: '4px',
+                            resize: 'vertical', fontFamily: 'inherit', padding: '4px'
+                        }}
+                        onFocus={(e) => { e.target.style.border = '1px solid var(--slate-300)'; e.target.style.background = 'white'; }}
+                        onBlur={(e) => { e.target.style.border = '1px solid transparent'; e.target.style.background = 'transparent'; }}
+                    />
                 </div>
 
-                {/* QUESTIONS */}
+                {/* QUESTIONS (SORTABLE) */}
                 <div className="questions-list">
-                    {activity.student_worksheet?.questions?.map((q, i) => {
-                        const badge = getCategoryBadge(q.question_text);
-                        return (
-                            <div key={i} style={{ marginBottom: '30px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                    <span className={badge.class}>
-                                        {badge.icon} {badge.label}
-                                    </span>
-                                </div>
-
-                                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'flex-start' }}>
-                                    <span style={{ color: 'var(--slate-300)', fontSize: '1rem', fontWeight: '600', flexShrink: 0, marginTop: '2px' }}>{i + 1}</span>
-                                    <span style={{ fontSize: '1.1rem', fontWeight: '500', lineHeight: '1.5', color: 'var(--slate-900)' }}>{q.question_text}</span>
-                                </div>
-
-                                <div style={{ paddingLeft: '24px' }}>
-                                    {q.options ? (
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
-                                            {q.options.map(opt => (
-                                                <div key={opt} style={{
-                                                    padding: '8px 12px', border: '1px solid var(--slate-100)', borderRadius: '6px',
-                                                    fontSize: '0.9rem', color: 'var(--slate-600)', display: 'flex', gap: '12px', alignItems: 'center'
-                                                }}>
-                                                    <div style={{ width: '14px', height: '14px', border: '1px solid var(--slate-300)', borderRadius: '50%' }}></div>
-                                                    {opt}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div style={{ borderBottom: '1px solid var(--slate-100)', height: '30px', width: '100%' }}></div>
-                                    )}
-                                </div>
-
-                                {q.hint && isScaffolded && (
-                                    <div style={{
-                                        marginTop: '12px', marginLeft: '24px',
-                                        color: '#d97706', fontSize: '0.8rem', display: 'flex', gap: '6px', alignItems: 'center'
-                                    }}>
-                                        <AlertTriangle size={12} />
-                                        <span>Hint: {q.hint}</span>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={questions.map(q => q.uid)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {questions.map((q, i) => (
+                                <SortableQuestion
+                                    key={q.uid}
+                                    id={q.uid}
+                                    q={q}
+                                    index={i}
+                                    isScaffolded={isScaffolded}
+                                    onEdit={handleQuestionEdit}
+                                    onDelete={handleDelete}
+                                    getCategoryBadge={getCategoryBadge}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
                 </div>
 
             </div>

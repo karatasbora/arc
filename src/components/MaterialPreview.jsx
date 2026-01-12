@@ -34,7 +34,7 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
 
     return (
         <div className="preview-panel">
-            <div className="paper">
+            <div className="paper" key={activity.id}>
                 {/* HEADER */}
                 <div style={{ marginBottom: '40px', borderBottom: '1px solid var(--slate-200)', paddingBottom: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>

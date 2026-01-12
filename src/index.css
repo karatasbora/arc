@@ -439,7 +439,7 @@ select.input-field {
 /* --- PREVIEW PANEL (Light Theme) --- */
 .preview-panel {
   background-color: var(--pv-bg);
-  background-image: radial-gradient(var(--amber-200) 1px, transparent 1px);
+  background-image: radial-gradient(var(--amber-400) 1px, transparent 1px);
   background-size: 24px 24px;
   /* Dot grid background for workdesk look */
   padding: 4rem 2rem;
@@ -455,7 +455,10 @@ select.input-field {
   min-height: 1000px;
   padding: 60px 70px;
   border: 1px solid var(--slate-200);
-  box-shadow: var(--shadow-float);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 8px 16px -4px rgba(0, 0, 0, 0.1),
+    0 24px 48px -12px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   /* Real paper isn't very rounded */
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);

@@ -41,7 +41,6 @@ export function useGemini() {
     // --- HISTORY ACTIONS ---
     const addToHistory = (newActivity, visualData) => {
         const newEntry = {
-            id: Date.now(),
             date: new Date().toLocaleDateString(),
             ...newActivity,
             visuals: visualData
@@ -96,6 +95,8 @@ export function useGemini() {
                     }
                 };
 
+                // ID injection for Debug Mode
+                mockData.id = Date.now();
                 setActivity(mockData);
 
                 // Use a reliable placeholder or the user's pref
@@ -159,6 +160,8 @@ export function useGemini() {
 
             if (!data.student_worksheet) throw new Error("Invalid AI response");
 
+            // ID injection for Real Mode
+            data.id = Date.now();
             setActivity(data);
 
             const mascotBase = mascotPref || (data.visual_theme?.mascot_prompt || "abstract concept");

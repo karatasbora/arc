@@ -8,16 +8,33 @@ import LoginModal from './components/LoginModal';
 function Workspace() {
   const {
     apiKey, setApiKey,
-    params, setParams,
+    transcript, setTranscript,
+    activityType, setActivityType,
+    cefrLevel, setCefrLevel,
+    isScaffolded, setIsScaffolded,
+    length, setLength,
+    audience, setAudience,
+    visualStyle, setVisualStyle,
+    mascotPref, setMascotPref,
+    model, setModel,
     loading,
-    material,
+    activity: material, // Alias activity to material
+    mascotUrl,
     history,
-    generateMaterial,
+    handleGenerate,
     loadFromHistory,
-    clearHistory
+    clearHistory,
+    deleteHistoryItem,
+    moveHistoryItem,
+    setActivity,
+    updateHistoryItem
   } = useGemini();
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <div className="app-shell">
@@ -28,19 +45,35 @@ function Workspace() {
         loadFromHistory={loadFromHistory}
         clearHistory={clearHistory}
         onLoginClick={() => setIsLoginModalOpen(true)}
+        currentActivity={material}
+        deleteHistoryItem={deleteHistoryItem}
+        moveHistoryItem={moveHistoryItem}
       />
+
 
       <div className="workspace">
         <ConfigPanel
-          params={params}
-          setParams={setParams}
-          onGenerate={generateMaterial}
+          transcript={transcript} setTranscript={setTranscript}
+          activityType={activityType} setActivityType={setActivityType}
+          cefrLevel={cefrLevel} setCefrLevel={setCefrLevel}
+          isScaffolded={isScaffolded} setIsScaffolded={setIsScaffolded}
+          length={length} setLength={setLength}
+          audience={audience} setAudience={setAudience}
+          visualStyle={visualStyle} setVisualStyle={setVisualStyle}
+          mascotPref={mascotPref} setMascotPref={setMascotPref}
+          model={model} setModel={setModel}
           loading={loading}
+          onGenerate={handleGenerate}
         />
 
         <MaterialPreview
-          material={material}
+          activity={material}
+          mascotUrl={mascotUrl}
           loading={loading}
+          onUpdate={setActivity}
+          onSave={updateHistoryItem}
+          onDownload={handlePrint}
+          isScaffolded={isScaffolded}
         />
       </div>
 

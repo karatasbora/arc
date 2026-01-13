@@ -1,8 +1,13 @@
 import React from 'react';
-import { Trash2, Library, Key, LogOut, User, LogIn } from 'lucide-react';
+import { Trash2, Library, Key, LogOut, User, LogIn, ChevronUp, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, clearHistory, onLoginClick }) {
+export default function Sidebar({
+    apiKey, setApiKey,
+    history, loadFromHistory, clearHistory,
+    onLoginClick,
+    currentActivity, deleteHistoryItem, moveHistoryItem
+}) {
     // Determine the base URL for assets (handles the 'base: /arc/' config)
     const baseUrl = import.meta.env.BASE_URL;
     const { currentUser, logout } = useAuth();
@@ -53,14 +58,60 @@ export default function Sidebar({ apiKey, setApiKey, history, loadFromHistory, c
                         No history yet.
                     </div>
                 )}
-                {history.map(item => (
-                    <div key={item.id} className="history-item" onClick={() => loadFromHistory(item)}>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <div style={{
-                                width: '6px', height: '6px', borderRadius: '50%',
-                                background: item.visuals?.themeColors?.primary || '#000'
-                            }}></div>
-                            <div>
+                {history.map((item, index) => (
+                    <div
+                        key={item.id}
+                        className={`history-item group ${currentActivity && currentActivity.id === item.id ? 'active' : ''}`}
+                        onClick={() => loadFromHistory(item)}
+                        style={{ position: 'relative', paddingLeft: '36px' }} // Make room for controls
+                    >
+                        {/* Action Buttons (Absolute Left like MaterialPreview) */}
+                        <div className="item-actions" onClick={(e) => e.stopPropagation()} style={{
+                            position: 'absolute',
+                            left: '4px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px',
+                            opacity: 0.4, // Match MaterialPreview default
+                            transition: 'opacity 0.2s'
+                        }}>
+                            <div className="relocate-actions" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                {index > 0 && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); moveHistoryItem(item.id, 'up'); }}
+                                        title="Move Up"
+                                        className="action-btn"
+                                        style={{ padding: 0, height: '12px', display: 'flex', alignItems: 'center' }}
+                                    >
+                                        <ChevronUp size={12} />
+                                    </button>
+                                )}
+                                {index < history.length - 1 && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); moveHistoryItem(item.id, 'down'); }}
+                                        title="Move Down"
+                                        className="action-btn"
+                                        style={{ padding: 0, height: '12px', display: 'flex', alignItems: 'center' }}
+                                    >
+                                        <ChevronDown size={12} />
+                                    </button>
+                                )}
+                            </div>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); deleteHistoryItem(item.id); }}
+                                title="Delete"
+                                className="action-btn delete-btn"
+                                style={{ padding: '2px' }}
+                            >
+                                <Trash2 size={14} color="#ef4444" />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                            {/* Dot Removed */}
+                            <div style={{ overflow: 'hidden', flex: 1 }}>
                                 <span className="history-title">{item.title}</span>
                                 <div className="history-meta">{(item.meta?.level || 'B1').toUpperCase()}</div>
                             </div>

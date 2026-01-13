@@ -219,12 +219,16 @@ h6 {
 }
 
 .history-item {
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid transparent;
   color: var(--sb-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* Gap between actions and text */
 }
 
 .history-item:hover {
@@ -245,6 +249,84 @@ h6 {
   font-size: 0.7rem;
   color: var(--sb-text-muted);
   margin-top: 4px;
+}
+
+.history-item.active {
+  background: var(--sb-hover);
+  border-left-color: var(--cyan-400);
+  /* Using cyan accent for active state */
+  color: var(--sb-text-main);
+  /* padding-left: 9px;  Active border handled by border-left width usually or transparent border */
+}
+
+/* Ensure actions are visible on group hover, similar to MaterialPreview */
+.item-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  /* Hidden by default */
+  transition: opacity 0.2s;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* On active, maybe we want them visible always? Or just on hover?
+   User asked for emphasis.
+   Let's keep hover behavior for cleanliness, unless active.
+*/
+.history-item.active .item-actions {
+  opacity: 0;
+  /* Keep clean unless hovering even if active?  */
+}
+
+.history-item.active:hover .item-actions {
+  opacity: 1;
+}
+
+/* Ensure actions interact nicely */
+.item-actions:hover {
+  opacity: 1 !important;
+}
+
+.history-item:hover .item-actions {
+  opacity: 1 !important;
+}
+
+/* Adjust button styling */
+.relocate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.relocate-actions .action-btn {
+  padding: 0;
+  height: 12px;
+  width: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}
+
+.item-actions .action-btn {
+  color: var(--sb-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.item-actions .action-btn:hover {
+  color: var(--sb-text-main);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.item-actions .delete-btn:hover {
+  color: #ef4444;
+  /* Red */
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* --- WORKSPACE --- */
@@ -723,6 +805,71 @@ select.input-field {
 .btn-logout-icon:hover {
   color: #f87171;
   /* red-400 */
-  background: rgba(127, 29, 29, 0.2);
   /* red-900/20 */
+}
+
+/* --- PRINT STYLES --- */
+@media print {
+
+  /* Hide Shell UI */
+  .sidebar,
+  .editor-panel,
+  .app-shell>.sidebar {
+    display: none !important;
+  }
+
+  /* Reset Layouts */
+  .app-shell {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+    display: block !important;
+    background: white !important;
+  }
+
+  /* Optimize Preview */
+  .preview-panel {
+    padding: 0 !important;
+    background: white !important;
+    overflow: visible !important;
+    display: block !important;
+    background-image: none !important;
+    /* Remove radial dots */
+  }
+
+  .paper {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    animation: none !important;
+  }
+
+  /* Hide Interactive Elements */
+  .drag-controls,
+  .download-btn,
+  .btn-premium-gradient,
+  .user-profile-card {
+    display: none !important;
+  }
+
+  textarea {
+    resize: none !important;
+    border: none !important;
+    /* ensure no borders on print */
+  }
+
+  .history-list,
+  .btn-clear-history,
+  .brand {
+    display: none !important;
+  }
 }

@@ -116,29 +116,81 @@ export function useGemini() {
         }
     };
 
+    const deleteHistoryItem = async (itemId) => {
+        if (!window.confirm("Delete this item?")) return;
+
+        const updatedHistory = history.filter(item => item.id !== itemId);
+        setHistory(updatedHistory);
+
+        // If the deleted item was active, clear the active view
+        if (activity && activity.id === itemId) {
+            setActivity(null);
+            setMascotUrl(null);
+        }
+
+        if (currentUser) {
+            const userRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userRef, { history: updatedHistory }, { merge: true });
+        } else {
+            localStorage.setItem('material_history', JSON.stringify(updatedHistory));
+        }
+    };
+
+    const moveHistoryItem = async (itemId, direction) => {
+        const index = history.findIndex(item => item.id === itemId);
+        if (index === -1) return;
+
+        const newHistory = [...history];
+        if (direction === 'up' && index > 0) {
+            [newHistory[index], newHistory[index - 1]] = [newHistory[index - 1], newHistory[index]];
+        } else if (direction === 'down' && index < newHistory.length - 1) {
+            [newHistory[index], newHistory[index + 1]] = [newHistory[index + 1], newHistory[index]];
+        } else {
+            return; // No move possible
+        }
+
+        setHistory(newHistory);
+
+        if (currentUser) {
+            const userRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userRef, { history: newHistory }, { merge: true });
+        } else {
+            localStorage.setItem('material_history', JSON.stringify(newHistory));
+        }
+    };
+
     const clearHistory = async () => {
-        if (confirm("Clear all saved materials?")) {
+        console.log("clearHistory called");
+        if (window.confirm("Clear all saved materials?")) {
+            console.log("User confirmed clear history");
             setHistory([]);
             setActivity(null);
 
             if (currentUser) {
+                console.log("Clearing firestore history");
                 const userRef = doc(db, 'users', currentUser.uid);
                 await setDoc(userRef, { history: [] }, { merge: true });
             } else {
+                console.log("Clearing local storage history");
                 localStorage.setItem('material_history', '[]');
             }
+        } else {
+            console.log("User cancelled clear history");
         }
     };
 
     // --- GENERATION LOGIC ---
     const handleGenerate = async () => {
+        console.log("handleGenerate called. API Key:", apiKey);
         if (!apiKey) return alert("Please enter API Key");
         setLoading(true);
         setActivity(null);
         setMascotUrl(null);
 
         // DEBUG MODE CHECK
+        console.log("Checking DEBUG mode. Key:", apiKey.trim().toUpperCase());
         if (apiKey.trim().toUpperCase() === 'DEBUG') {
+            console.log("Entering DEBUG mode block");
             try {
                 // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 1500));
@@ -178,6 +230,7 @@ export function useGemini() {
             return; // EXIT FUNCTION EARLY
         }
 
+        console.log("Proceeding to REAL API call with key:", apiKey);
         try {
             const genAI = new GoogleGenerativeAI(apiKey);
             const genModel = genAI.getGenerativeModel({ model: model });
@@ -267,6 +320,8 @@ export function useGemini() {
         clearHistory,
         handleGenerate,
         setActivity, // Exposed for Edit Mode
-        updateHistoryItem // Exposed for Save
+        updateHistoryItem, // Exposed for Save
+        deleteHistoryItem,
+        moveHistoryItem
     };
 }

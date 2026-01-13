@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { useAuth } from '../contexts/AuthContext';
+import { db } from '../config/firebase';
+import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 
 export function useGemini() {
     // --- STATE ---
+    const { currentUser } = useAuth(); // Get current user
+
     const [apiKey, setApiKey] = useState(() => {
         try { return localStorage.getItem('gemini_key') || ''; }
         catch (e) { return ''; }
@@ -26,37 +31,69 @@ export function useGemini() {
 
     // --- PERSISTENCE ---
     useEffect(() => {
-        try {
-            const saved = JSON.parse(localStorage.getItem('material_history') || '[]');
-            if (Array.isArray(saved)) setHistory(saved);
-        } catch (e) {
-            localStorage.setItem('material_history', '[]');
+        if (currentUser) {
+            // Firestore Listener for Authenticated Users
+            const userRef = doc(db, 'users', currentUser.uid);
+            const unsubscribe = onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.history) {
+                        setHistory(data.history);
+                    }
+                } else {
+                    // Create doc if it doesn't exist
+                    setDoc(userRef, { history: [] }, { merge: true });
+                }
+            });
+            return () => unsubscribe();
+        } else {
+            // LocalStorage for Guest Users
+            try {
+                const saved = JSON.parse(localStorage.getItem('material_history') || '[]');
+                if (Array.isArray(saved)) setHistory(saved);
+            } catch (e) {
+                localStorage.setItem('material_history', '[]');
+            }
         }
-    }, []);
+    }, [currentUser]);
 
     useEffect(() => {
         localStorage.setItem('gemini_key', apiKey);
     }, [apiKey]);
 
     // --- HISTORY ACTIONS ---
-    const addToHistory = (newActivity, visualData) => {
+    const addToHistory = async (newActivity, visualData) => {
         const newEntry = {
             date: new Date().toLocaleDateString(),
             ...newActivity,
             visuals: visualData
         };
         const updated = [newEntry, ...history];
-        setHistory(updated);
-        localStorage.setItem('material_history', JSON.stringify(updated));
+
+        setHistory(updated); // Optimistic update
+
+        if (currentUser) {
+            const userRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userRef, { history: updated }, { merge: true });
+        } else {
+            localStorage.setItem('material_history', JSON.stringify(updated));
+        }
     };
 
-    const updateHistoryItem = (updatedActivity) => {
+    const updateHistoryItem = async (updatedActivity) => {
         const updatedHistory = history.map(item =>
             item.id === updatedActivity.id ? { ...item, ...updatedActivity } : item
         );
-        setHistory(updatedHistory);
-        localStorage.setItem('material_history', JSON.stringify(updatedHistory));
-        setActivity(updatedActivity); // Ensure current view triggers re-render if needed
+
+        setHistory(updatedHistory); // Optimistic update
+        setActivity(updatedActivity);
+
+        if (currentUser) {
+            const userRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userRef, { history: updatedHistory }, { merge: true });
+        } else {
+            localStorage.setItem('material_history', JSON.stringify(updatedHistory));
+        }
     };
 
     const loadFromHistory = (item) => {
@@ -79,11 +116,17 @@ export function useGemini() {
         }
     };
 
-    const clearHistory = () => {
+    const clearHistory = async () => {
         if (confirm("Clear all saved materials?")) {
             setHistory([]);
             setActivity(null);
-            localStorage.setItem('material_history', '[]');
+
+            if (currentUser) {
+                const userRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userRef, { history: [] }, { merge: true });
+            } else {
+                localStorage.setItem('material_history', '[]');
+            }
         }
     };
 
@@ -125,7 +168,7 @@ export function useGemini() {
                 const mockMascotUrl = "https://placehold.co/400x400/14b8a6/white?text=DEBUG+Mascot";
                 setMascotUrl(mockMascotUrl);
 
-                addToHistory(mockData, { mascotUrl: mockMascotUrl, themeColors: { primary: '#14b8a6' } });
+                await addToHistory(mockData, { mascotUrl: mockMascotUrl, themeColors: { primary: '#14b8a6' } });
 
             } catch (err) {
                 alert("Debug Error: " + err.message);
@@ -196,7 +239,7 @@ export function useGemini() {
             const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=400&height=400&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
             setMascotUrl(imageUrl);
 
-            addToHistory(data, { mascotUrl: imageUrl, themeColors: { primary: '#09090b' } });
+            await addToHistory(data, { mascotUrl: imageUrl, themeColors: { primary: '#09090b' } });
 
         } catch (err) {
             alert("Error: " + err.message);
@@ -222,7 +265,6 @@ export function useGemini() {
         mascotUrl,
         loadFromHistory,
         clearHistory,
-        handleGenerate,
         handleGenerate,
         setActivity, // Exposed for Edit Mode
         updateHistoryItem // Exposed for Save

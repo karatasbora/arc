@@ -1,32 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import ConfigPanel from './components/ConfigPanel';
 import MaterialPreview from './components/MaterialPreview';
-import { generatePDF } from './utils/pdfGenerator';
 import { useGemini } from './hooks/useGemini';
+import LoginModal from './components/LoginModal';
 
-export default function App() {
+function Workspace() {
   const {
     apiKey, setApiKey,
-    transcript, setTranscript,
-    activityType, setActivityType,
-    cefrLevel, setCefrLevel,
-    isScaffolded, setIsScaffolded,
-    length, setLength,
-    audience, setAudience,
-    visualStyle, setVisualStyle,
-    mascotPref, setMascotPref,
-    model, setModel,
+    params, setParams,
     loading,
-    activity,
+    material,
     history,
-    mascotUrl,
+    generateMaterial,
     loadFromHistory,
-    clearHistory,
-    handleGenerate,
-    setActivity,
-    updateHistoryItem
+    clearHistory
   } = useGemini();
+
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   return (
     <div className="app-shell">
@@ -36,32 +27,31 @@ export default function App() {
         history={history}
         loadFromHistory={loadFromHistory}
         clearHistory={clearHistory}
+        onLoginClick={() => setIsLoginModalOpen(true)}
       />
 
-      <main className="workspace">
+      <div className="workspace">
         <ConfigPanel
-          transcript={transcript} setTranscript={setTranscript}
-          activityType={activityType} setActivityType={setActivityType}
-          cefrLevel={cefrLevel} setCefrLevel={setCefrLevel}
-          isScaffolded={isScaffolded} setIsScaffolded={setIsScaffolded}
-          length={length} setLength={setLength}
-          audience={audience} setAudience={setAudience}
-          visualStyle={visualStyle} setVisualStyle={setVisualStyle}
-          mascotPref={mascotPref} setMascotPref={setMascotPref}
-          model={model} setModel={setModel}
-          loading={loading} onGenerate={handleGenerate}
+          params={params}
+          setParams={setParams}
+          onGenerate={generateMaterial}
+          loading={loading}
         />
 
         <MaterialPreview
-          activity={activity}
-          mascotUrl={mascotUrl}
-          isScaffolded={isScaffolded}
-          onDownload={() => generatePDF(activity, mascotUrl, isScaffolded)}
-          onUpdate={setActivity}
-          onSave={updateHistoryItem}
+          material={material}
+          loading={loading}
         />
-      </main>
+      </div>
 
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </div>
   );
+}
+
+export default function App() {
+  return <Workspace />;
 }

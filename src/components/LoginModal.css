@@ -1,0 +1,319 @@
+/* Login Modal Styles */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: rgba(2, 6, 23, 0.8);
+    /* slate-950/80 */
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Reusing previous styles with minor adjustments for Modal context */
+
+.bg-glow-cyan {
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background: rgba(22, 78, 99, 0.2);
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+}
+
+.bg-glow-slate {
+    position: absolute;
+    bottom: -20%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: rgba(30, 41, 59, 0.2);
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+}
+
+.login-content {
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    z-index: 10;
+    animation: zoomIn 0.3s ease-out 0.1s backwards;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.brand-logo-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 1rem;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--slate-800);
+    box-shadow: var(--shadow-xl);
+    margin-bottom: 1rem;
+    color: var(--cyan-400);
+}
+
+.login-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.025em;
+    font-family: var(--font-heading);
+}
+
+.login-subtitle {
+    color: var(--slate-400);
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Glass Card */
+.login-card {
+    background: rgba(15, 23, 42, 0.8);
+    /* Slightly more opaque for modal */
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-float);
+    padding: 2rem;
+    position: relative;
+}
+
+/* Close Button */
+.btn-close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--slate-500);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.error-alert {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    display: flex;
+    align-items: start;
+    gap: 0.75rem;
+    color: #f87171;
+    font-size: 0.875rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--slate-300);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    margin-left: 0.25rem;
+}
+
+.input-wrapper-login {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--slate-500);
+    transition: color 0.2s;
+    pointer-events: none;
+}
+
+.input-wrapper-login:focus-within .input-icon {
+    color: var(--cyan-400);
+}
+
+.login-input {
+    width: 100%;
+    background: rgba(2, 6, 23, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    color: var(--slate-100);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.login-input:focus {
+    outline: none;
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.25);
+}
+
+/* Submit Button */
+.btn-login {
+    width: 100%;
+    background: linear-gradient(to right, var(--cyan-600), var(--cyan-500));
+    color: white;
+    font-weight: 600;
+    padding: 0.875rem;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.btn-login:hover {
+    background: linear-gradient(to right, var(--cyan-500), var(--cyan-400));
+}
+
+.btn-login:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* Divider */
+.divider {
+    position: relative;
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(51, 65, 85, 0.5);
+}
+
+.divider-text {
+    position: relative;
+    background: #0f172a;
+    /* approximate match */
+    padding: 0 1rem;
+    color: var(--slate-500);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 1rem;
+}
+
+/* Social Login */
+.btn-google {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid var(--slate-700);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    color: var(--slate-300);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-google:hover {
+    background: rgba(51, 65, 85, 0.5);
+    color: white;
+    border-color: var(--slate-600);
+}
+
+/* Footer Link */
+.toggle-text {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--slate-400);
+}
+
+.toggle-link {
+    color: var(--cyan-400);
+    font-weight: 600;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 0.25rem;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: rgba(34, 211, 238, 0.5);
+    text-underline-offset: 4px;
+}
+
+.toggle-link:hover {
+    color: var(--cyan-300);
+}
+
+.login-footer {
+    margin-top: 2rem;
+    text-align: center;
+    color: var(--slate-400);
+    /* lighter for overlay visibility */
+    font-size: 0.75rem;
+}
+
+/* Keyframes */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

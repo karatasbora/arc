@@ -202,18 +202,26 @@ export function useGemini() {
                     student_worksheet: {
                         instructions: "Read the following text and answer the questions. (DEBUG MODE)",
                         questions: [
-                            { question_text: "What is a quantum?", options: ["A small packet of energy", "A type of fruit"], hint: "Think small." },
-                            { question_text: "Is light a particle or a wave?", options: ["Particle", "Wave", "Both"], hint: "It's tricky!" }
+                            { question_text: "What is a quantum?", options: ["A small packet of energy", "A type of fruit"], hint: "Think small.", uid: "dbg-1" },
+                            { question_text: "Is light a particle or a wave?", options: ["Particle", "Wave", "Both"], hint: "It's tricky!", uid: "dbg-2" }
                         ],
-                        glossary: [{ word: "Quantum", definition: "The smallest amount of a physical quantity." }]
+                        glossary: [
+                            { word: "Quantum", definition: "The smallest amount of a physical quantity.", type: "noun", ipa: "/ˈkwɒn.təm/", example: "Quantum mechanics explains how atoms work." },
+                            { word: "Wave-particle duality", definition: "The concept that every particle or quantum entity may be described as either a particle or a wave.", type: "collocation", ipa: "/weɪv ˈpɑː.tɪ.kəl djuːˈæl.ə.ti/", example: "Wave-particle duality is central to quantum theory." }
+                        ]
+                    },
+                    teacher_guide: {
+                        answer_key: ["1. A (A small packet of energy)", "2. Both (It behaves as both depending on observation)"],
+                        concept_check_questions: [
+                            "Can you see a quantum with your eyes? (No)",
+                            "Is light only a wave? (No, it's both)"
+                        ],
+                        anticipated_problems: "Students might struggle with the abstract concept of 'duality'. Use the coin analogy (one coin, two sides)."
                     }
                 };
 
                 // ID injection for Debug Mode
                 mockData.id = Date.now();
-                mockData.student_worksheet.questions = mockData.student_worksheet.questions.map(q => ({
-                    ...q, uid: Math.random().toString(36).substr(2, 9)
-                }));
                 setActivity(mockData);
 
                 // Use a reliable placeholder or the user's pref
@@ -240,34 +248,70 @@ export function useGemini() {
             if (length === 'long') count = 15;
 
             let typePrompt = "";
+            let glossaryFocus = "Extract 5-7 distinct vocabulary items.";
+
             switch (activityType) {
-                case 'vocabulary': typePrompt = `FOCUS: VOCABULARY. Extract ${count} difficult words. Create matching questions.`; break;
-                case 'grammar': typePrompt = "FOCUS: GRAMMAR. Identify tense/structures. Create fill-in-the-blanks."; break;
-                case 'true_false': typePrompt = `FOCUS: TRUE/FALSE. Create ${count} statements.`; break;
-                case 'discussion': typePrompt = "FOCUS: SPEAKING. Create discussion prompts."; break;
-                default: typePrompt = "FOCUS: COMPREHENSION. Standard open questions.";
+                case 'vocabulary':
+                    typePrompt = `FOCUS: VOCABULARY. Extract ${count} lexical items. Create matching questions.`;
+                    glossaryFocus = "Identify high-frequency COLLOCATIONS, PHRASAL VERBS, and ACADEMIC WORD LIST items relevant to the text. Avoid obscure nouns.";
+                    break;
+                case 'grammar':
+                    typePrompt = "FOCUS: GRAMMAR. Identify tense/structures. Create fill-in-the-blanks.";
+                    glossaryFocus = "Extract verbs indicating the target tense.";
+                    break;
+                case 'true_false':
+                    typePrompt = `FOCUS: TRUE/FALSE. Create ${count} statements.`;
+                    break;
+                case 'discussion':
+                    typePrompt = "FOCUS: SPEAKING. Create discussion prompts. INCLUDE Functional Language frames (e.g., 'I agree because...', 'On the other hand...').";
+                    break;
+                default:
+                    typePrompt = "FOCUS: COMPREHENSION. Standard open questions.";
             }
 
-            const scaffoldPrompt = isScaffolded ? "SCAFFOLDING: ON. Hints, Multiple Choice." : "SCAFFOLDING: OFF.";
+            // DYNAMIC SCAFFOLDING
+            let scaffoldPrompt = "SCAFFOLDING: OFF.";
+            if (isScaffolded) {
+                if (cefrLevel === 'A1' || cefrLevel === 'A2') {
+                    scaffoldPrompt = "SCAFFOLDING: MAX. Provide L1 synonyms in hints where possible. Use simple multiple choice options.";
+                } else if (cefrLevel === 'B1') {
+                    scaffoldPrompt = "SCAFFOLDING: MED. Provide sentence starters for answers. Hints should be synonyms in English.";
+                } else {
+                    scaffoldPrompt = "SCAFFOLDING: MIN. Hints should be guided questions.";
+                }
+            }
 
             const prompt = `
-        You are "arc", an advanced Material Architect AI.
-        TEXT: "${transcript}"
-        CONFIG: ${typePrompt} | Level: ${cefrLevel} | Audience: ${audience} | ${scaffoldPrompt}
+        You are "arc", an advanced TEFL Pedagogical Architect.
         
-        TASK:
-        1. Create content tailored for ${audience}.
-        2. DESIGN A VISUAL THEME (primary_color, mascot_prompt).
+        INPUT TEXT: "${transcript}"
+        TARGET LEVEL: ${cefrLevel}
+        AUDIENCE: ${audience}
+        ACTIVITY TYPE: ${activityType}
+        ${scaffoldPrompt}
         
+        PEDAGOGICAL INSTRUCTIONS:
+        1. LEVEL CHECK: Analyze if the INPUT TEXT complexity matches the TARGET LEVEL (${cefrLevel}). 
+           - If the text is significantly harder (e.g. C1 text for A2 students), REWRITE/SIMPLIFY the text first, then base questions on the simplified version.
+           - If the text is appropriate, use it as is.
+        2. GLOSSARY: ${glossaryFocus} Include IPA transcription and a clear example sentence for each.
+        3. TEACHER GUIDE: Create a separate guide for the teacher including the Answer Key, Concept Check Questions (CCQs) for difficult concepts, and Anticipated Problems (grammar/vocab confusion).
+
         OUTPUT JSON ONLY:
         {
-          "title": "Title",
+          "title": "Creative Title",
           "meta": { "level": "${cefrLevel}", "type": "${activityType}", "duration": "20m" },
-          "visual_theme": { "primary_color": "#hex", "mascot_prompt": "desc" },
+          "visual_theme": { "primary_color": "#hex", "mascot_prompt": "specific character description" },
           "student_worksheet": {
-            "instructions": "...",
-            "questions": [{ "question_text": "...", "options": ["A","B"], "hint": "..." }],
-            "glossary": [{ "word": "...", "definition": "..." }]
+            "instructions": "Clear instructions for ${audience} student...",
+            "questions": [{ "question_text": "...", "options": ["A","B"] (if applicable), "hint": "..." }],
+            "glossary": [{ "word": "term", "type": "noun/verb/collocation", "definition": "simple def", "ipa": "/ipa/", "example": "sentence" }],
+            "functional_language": ["Phrase 1", "Phrase 2"] (optional, for discussion)
+          },
+          "teacher_guide": {
+             "answer_key": ["1. B", "2. False"],
+             "concept_check_questions": ["Q1...", "Q2..."],
+             "anticipated_problems": "Notes on potential difficulties..."
           }
         }
       `;

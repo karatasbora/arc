@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Palette, Download, HelpCircle, MapPin, User, Utensils, Clock, AlertTriangle, GripVertical, Trash2, Save } from 'lucide-react';
+import { Palette, Download, HelpCircle, MapPin, User, Utensils, Clock, AlertTriangle, GripVertical, Trash2, Save, GraduationCap, BookOpen } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -123,6 +123,8 @@ function SortableQuestion({ id, q, index, isScaffolded, onEdit, onDelete }) {
 }
 
 export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onDownload, onUpdate, onSave }) {
+
+    const [showTeacherMode, setShowTeacherMode] = React.useState(false);
 
     // ENSURE STABLE IDs
     useEffect(() => {
@@ -263,43 +265,55 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                                     className="editable-title"
                                 />
 
-                                <button id="save-btn" onClick={handleSave} className="download-btn" style={{
-                                    background: 'var(--slate-800)',
-                                    border: '1px solid var(--slate-900)',
-                                    color: 'white',
-                                    padding: '8px 12px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 500,
-                                    flexShrink: 0,
-                                    boxShadow: 'var(--shadow-sm)',
-                                    marginTop: '4px'
-                                }} title="Save Changes">
-                                    <Save size={16} /> <span>Save</span>
-                                </button>
+                                <div className="action-buttons" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <button
+                                        className="download-btn"
+                                        onClick={() => setShowTeacherMode(!showTeacherMode)}
+                                        style={{
+                                            background: showTeacherMode ? 'var(--cyan-100)' : 'white',
+                                            border: showTeacherMode ? '1px solid var(--cyan-500)' : '1px solid var(--slate-200)',
+                                            color: showTeacherMode ? 'var(--cyan-900)' : 'var(--slate-700)',
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', gap: '8px',
+                                            fontSize: '0.85rem', fontWeight: 600,
+                                            boxShadow: 'var(--shadow-sm)',
+                                            transition: 'all 0.2s'
+                                        }}
+                                        title="Toggle Teacher Guide"
+                                    >
+                                        <GraduationCap size={16} /> <span>Teacher Mode</span>
+                                    </button>
 
-                                <button onClick={onDownload} className="download-btn" style={{
-                                    background: 'white',
-                                    border: '1px solid var(--slate-200)',
-                                    color: 'var(--slate-950)',
-                                    padding: '8px 12px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 500,
-                                    flexShrink: 0,
-                                    boxShadow: 'var(--shadow-sm)',
-                                    marginTop: '4px'
-                                }} title="Export as PDF">
-                                    <Download size={16} /> <span>PDF</span>
-                                </button>
+                                    <button id="save-btn" onClick={handleSave} className="download-btn" style={{
+                                        background: 'var(--slate-800)',
+                                        border: '1px solid var(--slate-900)',
+                                        color: 'white',
+                                        padding: '8px 12px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', gap: '8px',
+                                        fontSize: '0.85rem', fontWeight: 500,
+                                        boxShadow: 'var(--shadow-sm)'
+                                    }} title="Save Changes">
+                                        <Save size={16} /> <span>Save</span>
+                                    </button>
+
+                                    <button onClick={onDownload} className="download-btn" style={{
+                                        background: 'white',
+                                        border: '1px solid var(--slate-200)',
+                                        color: 'var(--slate-950)',
+                                        padding: '8px 12px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', gap: '8px',
+                                        fontSize: '0.85rem', fontWeight: 500,
+                                        boxShadow: 'var(--shadow-sm)'
+                                    }} title="Export as PDF">
+                                        <Download size={16} /> <span>PDF</span>
+                                    </button>
+                                </div>
                             </div>
 
                             <div style={{ marginTop: '10px', display: 'flex', gap: '10px', color: 'var(--slate-500)', fontSize: '0.8rem', fontWeight: 600 }}>
@@ -312,6 +326,43 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                         )}
                     </div>
                 </div>
+
+                {/* TEACHER MODE: GUIDE SECTION */}
+                {showTeacherMode && activity.teacher_guide && (
+                    <div style={{
+                        marginBottom: '30px', padding: '20px',
+                        background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: '#1e40af', fontWeight: 'bold' }}>
+                            <BookOpen size={18} /> <span>TEACHER GUIDE</span>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            <div>
+                                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '8px' }}>Answer Key</h4>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.9rem', color: '#1e3a8a' }}>
+                                    {activity.teacher_guide.answer_key?.map((ans, i) => (
+                                        <li key={i} style={{ marginBottom: '4px' }}>{ans}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '8px' }}>Concept Check Questions</h4>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.9rem', color: '#1e3a8a' }}>
+                                    {activity.teacher_guide.concept_check_questions?.map((ccq, i) => (
+                                        <li key={i} style={{ marginBottom: '4px' }}>• {ccq}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                        {activity.teacher_guide.anticipated_problems && (
+                            <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #dbeafe' }}>
+                                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '8px' }}>Anticipated Problems</h4>
+                                <p style={{ fontSize: '0.9rem', color: '#1e3a8a', margin: 0 }}>{activity.teacher_guide.anticipated_problems}</p>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* INSTRUCTIONS */}
                 <div style={{ marginBottom: '30px' }}>
@@ -356,6 +407,24 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                     </DndContext>
                 </div>
 
+                {/* FUNCTIONAL LANGUAGE (For Discussion) */}
+                {activity.student_worksheet?.functional_language && (
+                    <div style={{ marginTop: '30px', padding: '15px', background: 'var(--slate-50)', borderRadius: '8px', border: '1px dashed var(--slate-300)' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--slate-500)', marginBottom: '10px', textTransform: 'uppercase' }}>Useful Phrases</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                            {activity.student_worksheet.functional_language.map((phrase, i) => (
+                                <span key={i} style={{
+                                    background: 'white', padding: '6px 12px', borderRadius: '20px',
+                                    border: '1px solid var(--slate-200)', fontSize: '0.9rem', color: 'var(--slate-700)',
+                                    fontWeight: 500
+                                }}>
+                                    {phrase}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* GLOSSARY */}
                 {activity.student_worksheet?.glossary && activity.student_worksheet.glossary.length > 0 && (
                     <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid var(--slate-100)' }}>
@@ -366,24 +435,36 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                                     background: 'var(--slate-50)', padding: '15px', borderRadius: '8px',
                                     border: '1px solid var(--slate-100)'
                                 }}>
-                                    <input
-                                        type="text"
-                                        value={item.word || ''}
-                                        onChange={(e) => {
-                                            const newGlossary = [...activity.student_worksheet.glossary];
-                                            newGlossary[i] = { ...newGlossary[i], word: e.target.value };
-                                            onUpdate({
-                                                ...activity,
-                                                student_worksheet: { ...activity.student_worksheet, glossary: newGlossary }
-                                            });
-                                        }}
-                                        style={{
-                                            fontWeight: '700', fontSize: '0.95rem', color: 'var(--slate-900)',
-                                            marginBottom: '4px', width: '100%', background: 'transparent',
-                                            border: 'none', outline: 'none'
-                                        }}
-                                        placeholder="Word"
-                                    />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <input
+                                            type="text"
+                                            value={item.word || ''}
+                                            onChange={(e) => {
+                                                const newGlossary = [...activity.student_worksheet.glossary];
+                                                newGlossary[i] = { ...newGlossary[i], word: e.target.value };
+                                                onUpdate({
+                                                    ...activity,
+                                                    student_worksheet: { ...activity.student_worksheet, glossary: newGlossary }
+                                                });
+                                            }}
+                                            style={{
+                                                fontWeight: '700', fontSize: '1rem', color: 'var(--slate-900)',
+                                                width: '70%', background: 'transparent', border: 'none', outline: 'none'
+                                            }}
+                                            placeholder="Word"
+                                        />
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--slate-400)', fontStyle: 'italic' }}>
+                                            {item.type || 'word'}
+                                        </span>
+                                    </div>
+
+                                    {/* IPA support */}
+                                    {item.ipa && (
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--slate-500)', fontFamily: 'Lucida Sans Unicode, Arial Unicode MS, sans-serif', marginBottom: '8px' }}>
+                                            {item.ipa}
+                                        </div>
+                                    )}
+
                                     <textarea
                                         rows={2}
                                         value={item.definition || ''}
@@ -398,10 +479,22 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
                                         style={{
                                             fontSize: '0.9rem', color: 'var(--slate-600)', lineHeight: '1.4',
                                             width: '100%', background: 'transparent', border: 'none',
-                                            outline: 'none', resize: 'none', fontFamily: 'inherit'
+                                            outline: 'none', resize: 'none', fontFamily: 'inherit',
+                                            marginBottom: '8px'
                                         }}
                                         placeholder="Definition"
                                     />
+
+                                    {/* Example Sentence */}
+                                    {item.example && (
+                                        <div style={{
+                                            fontSize: '0.85rem', color: 'var(--slate-500)',
+                                            fontStyle: 'italic', borderLeft: '2px solid var(--slate-300)',
+                                            paddingLeft: '8px', marginTop: '8px'
+                                        }}>
+                                            "{item.example}"
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -410,6 +503,7 @@ export default function MaterialPreview({ activity, mascotUrl, isScaffolded, onD
 
             </div>
         </div>
+
 
     );
 }
